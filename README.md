@@ -7,13 +7,13 @@ Official marketplace for the Silverbee Claude Code plugin.
 **Step 1 — Add the marketplace:**
 
 ```
-claude plugin marketplace add silverbee-ai/claude-official-silverbee-marketplace
+claude plugin marketplace add silverbee-ai/claude-silverbee-marketplace
 ```
 
 **Step 2 — Install the plugin:**
 
 ```
-claude plugin install silverbee@claude-official-silverbee-marketplace
+claude plugin install silverbee@silverbee-marketplace
 ```
 
 ## About
