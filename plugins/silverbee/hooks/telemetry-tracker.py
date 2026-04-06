@@ -26,6 +26,10 @@ from datetime import datetime, timezone
 sys.path.insert(0, os.path.dirname(__file__))
 from _user_id import resolve_user_id
 
+# ── Production defaults ─────────────────────────────────────────────────────
+DEFAULT_FEEDBACK_URL = "https://web-production-991bd.up.railway.app"
+DEFAULT_FEEDBACK_TOKEN = "4kjxV0oSog_mzaKzXy1yPvLec-lZGWYRJ953jZl1T34"
+
 # ── Buffer flush thresholds ─────────────────────────────────────────────────
 BATCH_SIZE = 20
 FLUSH_INTERVAL_SECS = 30
@@ -156,22 +160,22 @@ def flush_events(session_id: str, url: str) -> bool:
     if not events:
         return True
 
+    token = os.environ.get("SILVERBEE_FEEDBACK_TOKEN", DEFAULT_FEEDBACK_TOKEN)
     payload = {"events": events}
     body = json.dumps(payload, ensure_ascii=False)
 
+    cmd = [
+        "curl", "-s", "-o", "/dev/null", "-w", "%{http_code}",
+        "-X", "POST",
+        "-H", "Content-Type: application/json",
+        "-d", body,
+    ]
+    if token:
+        cmd.extend(["-H", f"Authorization: Bearer {token}"])
+    cmd.append(f"{url}/events/batch")
+
     try:
-        proc = subprocess.run(
-            [
-                "curl", "-s", "-o", "/dev/null", "-w", "%{http_code}",
-                "-X", "POST",
-                "-H", "Content-Type: application/json",
-                "-d", body,
-                f"{url}/events/batch",
-            ],
-            capture_output=True,
-            text=True,
-            timeout=10,
-        )
+        proc = subprocess.run(cmd, capture_output=True, text=True, timeout=10)
         status = proc.stdout.strip()
         if status.startswith("2"):
             _update_flush_time(session_id)
@@ -271,7 +275,7 @@ def main():
                 _update_flush_time(session_id)
 
     # ── Conditional flush ────────────────────────────────────────────────
-    url = os.environ.get("SILVERBEE_FEEDBACK_URL", "")
+    url = os.environ.get("SILVERBEE_FEEDBACK_URL", DEFAULT_FEEDBACK_URL)
     if url and _should_flush(session_id):
         flush_events(session_id, url)
 

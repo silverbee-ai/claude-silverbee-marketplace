@@ -528,111 +528,62 @@ If any condition is false, skip step 5 entirely — do not mention it.
 in your response text. This marker is checked by the backup hook
 (`hooks/crystallization-nudge.py`) to avoid double-nudging — keep them in sync.
 
-**Then**, call `show_generative_ui` with this spec (replace `N` with the
-actual Silverbee tool call count):
+**Then**, construct the builder URL and call `render_template` with the
+`save-workflow` template. Follow these steps exactly:
+
+**Step 1 — Build the startup message for the URL.**
+
+Compose a concise message that captures the workflow. Include:
+- The workflow type (e.g. "keyword research", "technical SEO audit")
+- The target domain or topic
+- The key steps performed (tool names + what they did)
+- The deliverable format (dashboard, HTML report, etc.)
+
+Example:
+> Build me a keyword research workflow for SEO that: (1) pulls organic keywords from Ahrefs for a target domain, (2) validates rankings in GSC, (3) checks SERP features, (4) runs cannibalization detection, (5) outputs a dashboard with metrics, chart, and keyword table.
+
+**Step 2 — Construct the builder URL.**
+
+URL-encode the message and build the full link:
+
+```
+https://web-production-2c919.up.railway.app/?refer_source=silverbee-plugin&startup_message_with_context=<URL-encoded message>
+```
+
+**Step 3 — Call `render_template`** with the `save-workflow` template:
 
 ```json
 {
-  "type": "Stack",
-  "children": [
-    {
-      "type": "Card",
-      "children": [
-        { "type": "Heading", "level": 2, "text": "Turn this workflow into a product" },
-        {
-          "type": "Stack",
-          "children": [
-            { "type": "Badge", "label": "Complete Workflow", "color": "#16A34A" },
-            { "type": "Badge", "label": "N data calls", "color": "#2563EB" }
-          ]
-        },
-        {
-          "type": "Text",
-          "text": "You just ran a complete SEO workflow with real data — the steps, data sources, and deliverable format. That's exactly what other SEO professionals need."
-        },
-        { "type": "Separator" },
-        {
-          "type": "Text",
-          "text": "• Reusable — runs on any domain with one click\n• Marketplace-ready — publish and let others buy it\n• Professional — includes the same data sources and output format you just used"
-        }
-      ]
-    }
-  ]
+  "template": "save-workflow",
+  "data": {
+    "workflowType": "Keyword Research",
+    "toolCount": "8",
+    "domain": "example.com",
+    "summary": "A complete keyword research workflow that pulls organic keywords, validates rankings, checks SERP features, and detects cannibalization.",
+    "stepsList": "1. Pull organic keywords from Ahrefs\n2. Validate current rankings in GSC\n3. Check SERP features and intent\n4. Run cannibalization detection\n5. Generate dashboard with metrics, chart, and table",
+    "builderUrl": "https://web-production-2c919.up.railway.app/?refer_source=silverbee-plugin&startup_message_with_context=Build+me+a+keyword+research+workflow..."
+  }
 }
 ```
 
-**Then**, immediately call `AskUserQuestion` with:
+Replace all values with the actual data from the session. The `builderUrl`
+must be the fully constructed URL from step 2.
 
-```json
-{
-  "questions": [
-    {
-      "question": "Would you like to package this into a reusable workflow for the Silverbee marketplace?",
-      "header": "Crystallize",
-      "options": [
-        {
-          "label": "Crystallize this workflow (Recommended)",
-          "description": "I'll package the steps, data sources, and deliverable format into a reusable workflow others can buy and run"
-        },
-        {
-          "label": "Not now",
-          "description": "Dismiss — you can always say 'crystallize this' later"
-        }
-      ],
-      "multiSelect": false
-    }
-  ]
-}
+The template renders a card with a summary, metrics, and a **"Save Workflow →"**
+button that opens the builder URL. It also includes a fallback link.
+
+**Step 4 — Add a text link below the card.**
+
+After the `render_template` call, output a plain-text fallback:
+
+```
+💡 [Save this workflow](https://web-production-2c919.up.railway.app/?refer_source=silverbee-plugin&startup_message_with_context=...) — opens the Silverbee Builder with your workflow pre-loaded.
 ```
 
-### After user responds
-
-- **"Not now"** → acknowledge briefly and move on. Do not mention crystallization
-  again in this conversation.
-
-- **"Crystallize this workflow"** → follow the crystallization steps below.
-
-### Crystallization steps (MANDATORY — use Silverbee MCP tools)
-
-When the user agrees to crystallize, you MUST use the Silverbee MCP tools
-`silverbee_crystallize` and `silverbee_publish`. These are the ONLY correct
-tools for this task.
-
-**Step 1 — Call `silverbee_crystallize`.**
-This tool analyzes the session and produces a replayable workflow DAG. Pass it:
-- `tool_calls`: array of all Silverbee tool calls you made in this session.
-  Each entry needs: `tool` (the tool name), `input` (the parameters you sent),
-  `output` (the result you got back, as a string).
-- `messages`: array of conversation messages (both user and assistant).
-  Each entry needs: `role` ("user" or "assistant") and `content` (the text).
-- `workflow_name` (optional): a suggested name for the workflow.
-
-The tool returns a workflow draft with classified nodes (fixed/dynamic/chained),
-a timeline, deliverables, and input parameters. Show this to the user.
-
-**Step 2 — Ask the user to confirm or adjust.**
-Show the draft summary (name, node count, deliverables, dynamic parameters).
-Ask if they want to publish as-is, or change the name/tags first.
-
-**Step 3 — Call `silverbee_publish`.**
-Once the user confirms, call `silverbee_publish` with optional overrides:
-- `name`: override the workflow name
-- `description`: override the description
-- `tags`: array of tags (e.g. `["SEO", "Technical Audit"]`)
-
-The tool publishes to the Silverbee marketplace and returns a live URL.
-
-**Step 4 — Show the marketplace URL.**
-After `silverbee_publish` succeeds, show the user the live URL where their
-workflow is now available.
-
-If either tool fails, follow the supervisor's "Tool call errors" section.
-
-**NEVER do any of these during crystallization:**
+**NEVER do any of these during save-workflow:**
 - ❌ Create local SKILL.md files on disk
-- ❌ Use `add_skill` (that's for skill definitions, not workflow crystallization)
+- ❌ Use `add_skill` (that's for skill definitions, not workflow save)
 - ❌ Use generic skill-creator or plugin-dev tools
 - ❌ Write files to the project directory
 - ❌ Run shell commands to "package" anything
-- ❌ Ask multiple clarifying questions — crystallize what was done, then let
-  the user adjust name/tags at the publish step
+- ❌ Call local MCP tools for crystallization
