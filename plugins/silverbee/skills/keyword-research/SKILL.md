@@ -255,6 +255,29 @@ One keyword per row with these columns in this exact order:
 | SERP validation | No | Skip SERP column, note in output |
 | Cannibalization check | No | Skip section, note in output |
 
+## Dashboard Template
+
+Use `render_template("keyword-research", data)` via the silverbee-ui MCP.
+
+| Field | Type | Description |
+|---|---|---|
+| `title` | string | Dashboard heading |
+| `metrics.bestTarget` | string | Best target keyword |
+| `metrics.highestVolume` | string | Highest volume keyword |
+| `metrics.fastestGrowing` | string | Fastest growing keyword |
+| `metrics.totalKeywords` | string | Total keyword count |
+| `chart.data[]` | array of `{keyword, volume}` | Bar/column chart data (keyword: string, volume: number) |
+| `keywords.rows` | string[][] | Keywords table rows |
+| `serp.rows` | string[][] | SERP validation table rows |
+| `nextSteps` | string (optional) | Recommended next steps text |
+| `hasNextSteps` | boolean (optional) | Whether to show next steps section |
+
+All metric values are **strings** (not numbers). Table `rows` are `string[][]` (arrays of string arrays, not objects).
+
+For custom specs or troubleshooting, load the `show-generative-ui` skill.
+
+---
+
 ## Output Format
 
 When all data collection and analysis is complete, call `read_skill("seo-output-formatter")` and follow its instructions to format and present the full deliverable.

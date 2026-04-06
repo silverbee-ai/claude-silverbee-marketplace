@@ -250,6 +250,27 @@ The evidence supports the conclusion or it doesn't yet.
 | Archive.org snapshots | No | Skip historical comparison, note in output |
 | Ahrefs ranking changes | No | Use GSC data only, note in output |
 
+## Dashboard Template
+
+Use `render_template("drop-analysis", data)` via the silverbee-ui MCP.
+
+| Field | Type | Description |
+|---|---|---|
+| `title` | string | Dashboard heading |
+| `metrics.trafficDrop` | string | Traffic drop magnitude |
+| `metrics.affectedPages` | string | Number of affected pages |
+| `metrics.likelyCause` | string | Most likely root cause |
+| `metrics.recoveryActions` | string | Recommended recovery actions count |
+| `chart.data[]` | array of `{period, traffic}` | Traffic trend chart (period: string, traffic: number) |
+| `affectedPages.rows` | string[][] | Affected pages table rows |
+| `rankingDrops.rows` | string[][] | Ranking drops table rows |
+
+All metric values are **strings** (not numbers). Table `rows` are `string[][]` (arrays of string arrays, not objects).
+
+For custom specs or troubleshooting, load the `show-generative-ui` skill.
+
+---
+
 ## Output Format
 
 When all data collection and analysis is complete, call `read_skill("seo-output-formatter")` and follow its instructions to format and present the full deliverable.

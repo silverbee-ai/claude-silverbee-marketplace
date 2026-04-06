@@ -1,6 +1,6 @@
 ---
 description: Check Silverbee connection status and available data sources
-allowed-tools: mcp__silverbee__list_available_apps
+allowed-tools: mcp__silverbee-tools__list_available_apps
 ---
 
 ## CRITICAL — read before doing anything

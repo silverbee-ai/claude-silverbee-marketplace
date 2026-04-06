@@ -231,6 +231,27 @@ Use Ahrefs (fallback: DataForSEO) for monitoring. GSC backlink data is supplemen
 
 ---
 
+## Dashboard Template
+
+Use `render_template("link-building", data)` via the silverbee-ui MCP.
+
+| Field | Type | Description |
+|---|---|---|
+| `title` | string | Dashboard heading |
+| `metrics.targetDomains` | string | Number of target domains |
+| `metrics.opportunities` | string | Total link opportunities |
+| `metrics.authorityGain` | string | Projected authority gain |
+| `metrics.priorityWins` | string | Priority quick wins count |
+| `chart.data[]` | array of `{category, count}` | Opportunities by category (category: string, count: number) |
+| `prospects.rows` | string[][] | Link prospects table rows |
+| `timeline.rows` | string[][] | Implementation timeline rows |
+
+All metric values are **strings** (not numbers). Table `rows` are `string[][]` (arrays of string arrays, not objects).
+
+For custom specs or troubleshooting, load the `show-generative-ui` skill.
+
+---
+
 ## Output Format
 
 When all data collection and analysis is complete, call `read_skill("seo-output-formatter")` and follow its instructions to format and present the full deliverable.

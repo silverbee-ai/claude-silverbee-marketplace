@@ -421,6 +421,27 @@ Every run must output three sections:
 | Competitor content analysis | No | Optimize without competitor context |
 | SERP feature analysis | No | Skip SERP features, note in output |
 
+## Dashboard Template
+
+Use `render_template("content-optimization", data)` via the silverbee-ui MCP.
+
+| Field | Type | Description |
+|---|---|---|
+| `title` | string | Dashboard heading |
+| `metrics.keywordsValidated` | string | Count of validated keywords |
+| `metrics.keywordsPlaced` | string | Count of keywords placed |
+| `metrics.gscQueriesRetained` | string | GSC queries retained |
+| `metrics.densityIssues` | string | Density/repetition issues found |
+| `chart.data[]` | `{placement: string, count: number}` | Keyword placements by location |
+| `placements.rows` | string[][] | Keyword placement detail rows |
+| `removed.rows` | string[][] | Removed keywords with reasons |
+
+All metric values are **strings** (not numbers). Table `rows` are `string[][]` (arrays of string arrays, not objects).
+
+For custom specs or troubleshooting, load the `show-generative-ui` skill.
+
+---
+
 ## Output Format
 
 When all data collection and analysis is complete, call `read_skill("seo-output-formatter")` and follow its instructions to format and present the full deliverable.

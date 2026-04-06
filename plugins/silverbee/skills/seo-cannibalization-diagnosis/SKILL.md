@@ -247,6 +247,31 @@ Explain briefly why the selected URL should own the keyword
 2–3 concise sentences linking the data to the classification.
 ---
 
+## Dashboard Template
+
+Use `render_template("competitor-analysis", data)` via the silverbee-ui MCP.
+
+This template is repurposed for cannibalization diagnosis. Field mapping:
+
+| Field | Type | Maps to |
+|---|---|---|
+| `title` | string | Dashboard heading |
+| `metrics.trafficGap` | string | Cannibalized Queries (count) |
+| `metrics.keywordGap` | string | Affected URLs (count) |
+| `metrics.drDelta` | string | Traffic at Risk (estimate) |
+| `metrics.topOpportunity` | string | Primary Action (recommendation) |
+| `chart.data[]` | `{cluster: string, competitor: number, you: number}` | Per-cluster click share comparison between competing URLs |
+| `gapKeywords.rows` | string[][] | Cannibalized query detail rows |
+| `topPages.rows` | string[][] | Affected URL detail rows |
+
+All metric values are **strings** (not numbers). Table `rows` are `string[][]` (arrays of string arrays, not objects).
+
+> **Note:** The `competitor-analysis` template is the closest layout match for cannibalization output. The gap/competitor fields are repurposed as described above. When populating `chart.data`, use `competitor` for the non-primary URL's click share and `you` for the primary URL's click share.
+
+For custom specs or troubleshooting, load the `show-generative-ui` skill.
+
+---
+
 ## 8) Guardrails
 
 1. Minimum 3-month window. State window used

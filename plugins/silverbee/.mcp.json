@@ -1,9 +1,9 @@
 {
   "mcpServers": {
-    "silverbee": {
+    "silverbee-tools": {
       "url": "https://silverbee-us.apigene.ai/globalagent/codex-seo-agent/mcp"
     },
-    "generative-ui-mcp": {
+    "silverbee-ui": {
       "url": "https://generative-ui-mcp-production.up.railway.app/mcp"
     }
   }

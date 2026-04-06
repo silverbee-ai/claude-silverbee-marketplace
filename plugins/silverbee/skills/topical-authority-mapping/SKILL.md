@@ -204,6 +204,27 @@ Order what to build or expand by impact.
 
 ---
 
+## Dashboard Template
+
+Use `render_template("topical-authority", data)` via the silverbee-ui MCP.
+
+| Field | Type | Description |
+|---|---|---|
+| `title` | string | Dashboard heading |
+| `metrics.pillars` | string | Number of pillar topics identified |
+| `metrics.coverageScore` | string | Overall coverage percentage |
+| `metrics.missingTopics` | string | Count of missing subtopics |
+| `metrics.quickWins` | string | Quick-win opportunities count |
+| `chart.data[]` | `{pillar: string, coverage: number}` | Coverage score per pillar |
+| `contentGap.rows` | string[][] | Content gap detail rows |
+| `priorityMatrix.rows` | string[][] | Priority matrix rows |
+
+All metric values are **strings** (not numbers). Table `rows` are `string[][]` (arrays of string arrays, not objects).
+
+For custom specs or troubleshooting, load the `show-generative-ui` skill.
+
+---
+
 ## Output Format
 
 When all data collection and analysis is complete, call `read_skill("seo-output-formatter")` and follow its instructions to format and present the full deliverable.
