@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "silverbee": {
+      "type": "http",
+      "url": "https://silverbee-us.apigene.ai/globalagent/codex-seo-agent/mcp"
+    },
+    "silverbee-crystallize": {
+      "command": "node",
+      "args": ["${CLAUDE_PLUGIN_ROOT}/mcp-crystallize/bundle.js"]
+    }
+  }
+}
