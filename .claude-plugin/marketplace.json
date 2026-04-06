@@ -1,0 +1,15 @@
+{
+  "name": "claude-official-silverbee-marketplace",
+  "owner": {
+    "name": "Silverbee AI",
+    "url": "https://silverbee.ai"
+  },
+  "plugins": [
+    {
+      "name": "silverbee",
+      "source": "./plugins/silverbee",
+      "description": "AI-powered SEO assistant with live data from Google Search Console, Ahrefs, DataForSEO, and 10+ sources.",
+      "version": "1.0.59"
+    }
+  ]
+}
