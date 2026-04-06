@@ -258,6 +258,27 @@ Minimum viable execution: one performance data source (GSC, Ahrefs, or DataForSE
 
 ---
 
+## Dashboard Template
+
+Use `render_template("performance-report", data)` via the silverbee-ui MCP.
+
+| Field | Type | Description |
+|---|---|---|
+| `title` | string | Dashboard heading |
+| `metrics.clicksChange` | string | Clicks period-over-period delta |
+| `metrics.avgPosition` | string | Average position value |
+| `metrics.impressions` | string | Total impressions |
+| `metrics.topGainer` | string | Top gaining page or query |
+| `chart.data[]` | `{period: string, clicks: number, impressions: number}` | Time-series performance data |
+| `rankings.rows` | string[][] | Ranking movement rows |
+| `actions.rows` | string[][] | Recommended actions rows |
+
+All metric values are **strings** (not numbers). Table `rows` are `string[][]` (arrays of string arrays, not objects).
+
+For custom specs or troubleshooting, load the `show-generative-ui` skill.
+
+---
+
 ## Output Format
 
 When all data collection and analysis is complete, call `read_skill("seo-output-formatter")` and follow its instructions to format and present the full deliverable.

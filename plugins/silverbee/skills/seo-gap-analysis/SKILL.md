@@ -209,6 +209,27 @@ All URLs must appear as full clickable URLs including https:// (no relative path
 
 ---
 
+## Dashboard Template
+
+Use `render_template("competitor-analysis", data)` via the silverbee-ui MCP.
+
+| Field | Type | Description |
+|---|---|---|
+| `title` | string | Dashboard heading |
+| `metrics.trafficGap` | string | Estimated traffic gap |
+| `metrics.keywordGap` | string | Number of keyword gaps |
+| `metrics.drDelta` | string | Domain rating delta |
+| `metrics.topOpportunity` | string | Top opportunity keyword/topic |
+| `chart.data[]` | array of `{cluster, competitor, you}` | Comparison chart data (cluster: string, competitor: number, you: number) |
+| `gapKeywords.rows` | string[][] | Gap keywords table rows |
+| `topPages.rows` | string[][] | Top competitor pages table rows |
+
+All metric values are **strings** (not numbers). Table `rows` are `string[][]` (arrays of string arrays, not objects).
+
+For custom specs or troubleshooting, load the `show-generative-ui` skill.
+
+---
+
 ## Output Format
 
 When all data collection and analysis is complete, call `read_skill("seo-output-formatter")` and follow its instructions to format and present the full deliverable.

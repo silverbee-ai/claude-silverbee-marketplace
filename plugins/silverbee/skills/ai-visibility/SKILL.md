@@ -312,6 +312,27 @@ Cross-reference findings:
 
 ---
 
+## Dashboard Template
+
+Use `render_template("ai-visibility", data)` via the silverbee-ui MCP.
+
+| Field | Type | Description |
+|---|---|---|
+| `title` | string | Dashboard heading |
+| `metrics.llmMentions` | string | Total LLM mention count |
+| `metrics.aiEngines` | string | Number of AI engines checked |
+| `metrics.llmsTxtStatus` | string | llms.txt validation status |
+| `metrics.topCitedUrl` | string | Most-cited URL |
+| `chart.data[]` | `{engine: string, mentions: number}` | AI engine mention counts for bar chart |
+| `competitorPresence.rows` | string[][] | Competitor presence matrix rows |
+| `aioPresence.rows` | string[][] | AI Overview presence rows |
+
+All metric values are **strings** (not numbers). Table `rows` are `string[][]` (arrays of string arrays, not objects).
+
+For custom specs or troubleshooting, load the `show-generative-ui` skill.
+
+---
+
 ## Output Format
 
 When all data collection and analysis is complete, call `read_skill("seo-output-formatter")` and follow its instructions to format and present the full deliverable.

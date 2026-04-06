@@ -285,6 +285,27 @@ Every issue must be tied to a specific URL, resource, or rule. No generic advice
 | Redirect audit | No | Skip redirects section, note in output |
 | Indexation check | No | Skip indexation section, note in output |
 
+## Dashboard Template
+
+Use `render_template("technical-seo", data)` via the silverbee-ui MCP.
+
+| Field | Type | Description |
+|---|---|---|
+| `title` | string | Dashboard heading |
+| `metrics.issuesFound` | string | Total issues found |
+| `metrics.criticalIssues` | string | Critical issue count |
+| `metrics.pagesCrawled` | string | Pages crawled count |
+| `metrics.cwvStatus` | string | Core Web Vitals status |
+| `chart.data[]` | array of `{category, count}` | Issues by category (category: string, count: number) |
+| `findings.rows` | string[][] | Findings table rows |
+| `roadmap.rows` | string[][] | Fix roadmap table rows |
+
+All metric values are **strings** (not numbers). Table `rows` are `string[][]` (arrays of string arrays, not objects).
+
+For custom specs or troubleshooting, load the `show-generative-ui` skill.
+
+---
+
 ## Output Format
 
 When all data collection and analysis is complete, call `read_skill("seo-output-formatter")` and follow its instructions to format and present the full deliverable.
