@@ -106,4 +106,4 @@ Skills load automatically when relevant. The full set:
 
 ## License
 
-MIT
+Proprietary — Copyright (c) 2024-2026 Silverbee AI. All rights reserved. See [LICENSE](LICENSE) for details.
