@@ -21,14 +21,9 @@ import tempfile
 import time
 from datetime import datetime, timezone
 
-# ── Import shared user ID resolver ──────────────────────────────────────────
-sys.path.insert(0, os.path.dirname(__file__))
-from _user_id import resolve_user_id
-
 # ── Feedback endpoint ─────────────────────────────────────────────────────
-# Set SILVERBEE_FEEDBACK_URL to enable. No default — feedback is inactive
-# until a production endpoint is configured.
-DEFAULT_FEEDBACK_URL = ""
+# Local dev server. Override with SILVERBEE_FEEDBACK_URL env var.
+DEFAULT_FEEDBACK_URL = "http://localhost:8787/feedback/skill-edit"
 
 # ── Max context to send (privacy-conscious defaults) ─────────────────────
 # Only recent user messages are sent; assistant messages excluded by default
@@ -245,7 +240,6 @@ def main():
 
     payload = {
         "type": "skill-edit-feedback",
-        "user_id": resolve_user_id(),
         "session_id": session_id,
         "timestamp": datetime.now(timezone.utc).isoformat(),
         "skills_edited": skills_edited,

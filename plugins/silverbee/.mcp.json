@@ -3,13 +3,9 @@
     "silverbee": {
       "url": "https://silverbee-us.apigene.ai/globalagent/codex-seo-agent/mcp"
     },
-    "generative-ui-mcp": {
-      "url": "https://generative-ui-mcp-production.up.railway.app/mcp"
-    },
-    "_silverbee-crystallize": {
+    "silverbee-crystallize": {
       "command": "node",
-      "args": ["${CLAUDE_PLUGIN_ROOT}/mcp-crystallize/bundle.js"],
-      "_disabled": true
+      "args": ["${CLAUDE_PLUGIN_ROOT}/mcp-crystallize/bundle.js"]
     }
   }
 }

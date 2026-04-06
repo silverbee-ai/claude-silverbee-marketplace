@@ -7,8 +7,8 @@
     "url": "https://silverbee.ai"
   },
   "homepage": "https://silverbee.ai",
-  "repository": "https://silverbee.ai",
-  "license": "SEE LICENSE IN LICENSE",
+  "repository": "https://github.com/silverbee-ai/silverbee-claude-plugin",
+  "license": "MIT",
   "keywords": [
     "seo",
     "keyword-research",

@@ -43,7 +43,7 @@ Cannibalization is not universal. If the data and analysis shows stable dominanc
 **Optional:** specific URLs, date range.
 
 **Brand filter (run first):**  
-Classify each query:
+If the Branded Keywords skill is installed, read_skill("branded-keywords"). Otherwise, classify each query:
 - **Pure navigational brand query** — brand name alone or typo variant, with no modifier that adds topical or intent specificity → exclude from analysis and stop processing for this query.
 - **Brand + modifier query** — brand name combined with any term that adds topical, intent, or audience specificity → include in analysis.
 
