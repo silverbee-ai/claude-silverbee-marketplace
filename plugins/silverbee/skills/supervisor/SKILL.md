@@ -30,6 +30,13 @@ workflow begins.
 
 Do not attempt `run_action` or any other tool call until Step 2 passes.
 
+### Step 2b — Load project config (if available)
+Check if `.silverbee.json` exists in the working directory. If it does, read it
+and use its values as defaults for the workflow (domain, competitors, geo, etc.).
+
+Priority order: (1) user's explicit input > (2) `$ARGUMENTS` > (3) `.silverbee.json`.
+If the file doesn't exist, proceed normally — no error, no prompt.
+
 ## How to use tools
 
 All live data comes through four MCP tools:
@@ -64,107 +71,103 @@ offers equivalent data.
 **Rules:**
 - If the preferred app is not in the connected apps list, silently switch to
   the next fallback. Do NOT ask the user to connect it — just use what's available.
-- If you switch to a fallback, mention it briefly in the progress line:
-  `✓ GSC not connected — using Ahrefs for ranking data.`
+- If you switch to a fallback, mention it briefly in the progress line
+  (include step number if available): `✓ GSC not connected — using Ahrefs.`
 - Only ask the user to connect an app if ALL fallbacks for a data type are
   unavailable and the data is critical to the workflow.
 - Call `search_actions(query)` to discover equivalent operations in the
   fallback app when you don't know the exact operation_id.
 
+## Result Reuse
+
+If you already fetched the same data type for the same domain from the same
+source app earlier in this conversation, reuse that result. Do not re-fetch.
+Say `✓ Reusing [data] from earlier` in the progress line. Re-fetch if:
+the user explicitly asks, the query parameters differ, or the earlier call
+returned an error (never reuse failed results).
+
 ## Progress — the most important rule
 
-**After every single `run_action` call**, output one line of plain text before
-making the next call. No exceptions. Format:
+After each **major step** (as defined by the active skill's Step Count table),
+output one text line before making the next call. No exceptions.
+
+A major step is a logical phase of the workflow (e.g., "fetch GSC keywords"),
+not an individual `run_action` call. Multiple parallel tool calls within one
+step count as a single step.
+
+### Format
+
+If the active skill has a **Step Count** table, use numbered progress:
 
 ```
-✓ [what just finished] — [key number or result]. [what comes next]...
+[1/7] ✓ Scope locked — ynet.co.il, IL market. Pulling keyword candidates...
+[2/7] ✓ 84 keyword candidates from Ahrefs. Enriching with volume/KD/CPC...
+[3/7] ✓ Metrics collected. Pulling GSC rankings...
 ```
 
-Examples:
-```
-✓ Scope locked — ynet.co.il targets Hebrew news, primary market IL. Pulling keyword candidates from Ahrefs...
-✓ Got 84 keyword candidates from Ahrefs. Enriching with volume/KD/CPC...
-✓ Metrics collected for 84 keywords. Pulling GSC rankings...
-✓ Rankings pulled — 31 keywords already ranking. Running cannibalization check...
-✓ Cannibalization: 2 flags found. Building dashboard...
-```
+If the skill has **no Step Count table**, use plain progress without numbers:
+`✓ Fetched GSC keywords (847 results). Running enrichment...`
 
-If a `run_action` call returns an error or empty result, say so immediately —
-never retry silently.
+If a step is skipped (reused data, non-critical failure), still count it:
+`[4/7] ✓ Reusing GSC rankings from earlier. Running cannibalization check...`
+
+If a tool call returns an error or empty result, say so immediately in the
+progress line.
 
 ## Tool call errors
 
-There are two types of errors. Handle them differently:
+When a tool call fails, classify it and follow the matching rule. There is
+one error-handling system — no exceptions.
 
-### Type 1 — App-specific error (one app fails, others may work)
+### Step 1 — Classify the error
 
-When a `run_action` call for a **specific app** fails (e.g. GSC returns an
-error, or an Ahrefs operation fails), but the Silverbee connection itself
-is working (other tools succeeded earlier in this session):
+| Signal | Classification | Action |
+|--------|---------------|--------|
+| `auth` / `401` / `403` | **Auth error** | STOP → show login URL |
+| `get_instructions` or `list_available_apps` fails | **Connection error** | STOP → show login URL |
+| Multiple unrelated apps fail in sequence | **Connection error** | STOP → show login URL |
+| `rate_limit` / `429` / `quota` | **Transient error** | Retry once after 3s |
+| `timeout` / `ETIMEDOUT` | **Transient error** | Retry once |
+| `not_found` / `404` | **Skip error** | Skip step, note in output |
+| `5xx` (single app, others working) | **Transient error** | Retry once |
+| 200 OK but empty result / no data | **Skip error** | Skip step, note in output |
+| Anything else | **Unknown error** | STOP → show raw error |
 
-1. **Check the fallback chain** in "Step 3 — Know your available apps" above.
-2. If an alternative app is connected, use `search_actions` to find the
-   equivalent operation and try the fallback. Mention it in the progress line:
+### Auth / Connection errors — STOP immediately
+
+1. Do not retry. Do not try different tools. STOP.
+2. Scan the error response for a URL (`http://` or `https://`).
+3. Show the user:
+
+> 🔐 **Authentication required.**
+> **👉 Log in here: [URL from error, or https://silverbee-us.apigene.ai/sign-in]**
+> Raw error: `[exact error message]`
+> Say "continue" once you've logged in.
+
+4. Wait for user confirmation before any further tool calls.
+
+### Transient errors — fallback, then retry, then skip or stop
+
+1. **Try fallback first.** Check the fallback chain in Step 3. If an
+   alternative app is connected, switch to it instead of retrying:
    `✓ GSC query failed — switching to Ahrefs for ranking data.`
-3. Only stop and ask the user if ALL fallbacks for that data type are exhausted.
+2. **If no fallback available**, report `⟳ Retrying [tool] ([reason])...`,
+   wait 3 seconds, retry once. **Max 1 retry per tool call.**
+3. If fallback or retry succeeds → continue normally.
+4. If both fail → check the active skill's **Step Criticality** table:
+   - **Critical step** → stop workflow, deliver whatever was collected so far
+   - **Non-critical step** → skip it, note the gap, continue
+   - **No Step Criticality table** → treat the step as critical (stop)
 
-### Type 2 — Connection/auth error (Silverbee itself is unreachable)
+**Latency note:** The 3s retry delay only fires on failure when no fallback
+exists. Mitigation: max 1 retry, so worst case is +3s per failed call.
 
-When `get_instructions`, `list_available_apps`, or the **first** tool call in
-a session fails — this means the Silverbee connection isn't established.
-Also applies when multiple unrelated apps all fail in sequence.
+### Skip errors — note and continue
 
-**When a connection/auth error occurs:**
-
-1. **STOP IMMEDIATELY** — do not attempt any more tool calls. Do not retry.
-   Do not try a different tool hoping it will work. STOP.
-
-2. **Scan the full error response for a URL.** Check every field and string
-   in the error for anything starting with `http://` or `https://`. Look in:
-   - `details` field
-   - `url`, `login_url`, `auth_url` fields
-   - Inside message strings
-   - Anywhere in the raw error text
-
-3. **Show the user what happened.** Pick the matching case:
-
-**Case A — You found a URL in the error:**
-
-> 🔐 **Authentication required.** Your Silverbee account isn't connected yet.
->
-> **👉 Log in here: PASTE_THE_ACTUAL_URL_HERE**
->
-> ⚠️ **Execution is paused.** Once you've logged in, say "continue" and I'll resume.
-
-**Case B — No URL found in the error (e.g. "Tool execution failed"):**
-
-> 🔐 **Silverbee connection failed.** This usually means your account isn't
-> connected to this environment yet.
->
-> **👉 Connect here: https://silverbee-us.apigene.ai/sign-in**
->
-> Raw error for reference: `[paste the exact error message here]`
->
-> ⚠️ **Execution is paused.** Once you've connected, say "continue" and I'll resume.
-
-4. **Wait for explicit user confirmation** before retrying any tool call.
-
-### Rules — no exceptions
-
-- **ALWAYS show a clickable URL** — either from the error (Case A) or the
-  fallback `https://silverbee-us.apigene.ai/sign-in` (Case B). There is no scenario
-  where you respond without a URL.
-- **ALWAYS paste the raw error message** so the user can see exactly what failed.
-- **NEVER** ask the user "do you have an account?" or "are your tools connected?"
-  instead of showing the URL. The URL IS the answer.
-- **NEVER** suggest vague troubleshooting steps. Show the URL and stop.
-- **NEVER** continue making tool calls after any error.
-- **NEVER** retry a failed call silently or try different tools.
-
-### Notes
-- The pre-flight check in Startup Step 2 catches most issues before any workflow begins.
-- If an error occurs *during* a workflow, the same rules apply: stop, show URL, wait.
-- This works identically across: Claude Code, Claude CoWork, web, and IDE integrations.
+Skip the step. In the final output, mark the gap:
+- Markdown: "⚠️ [data type] unavailable — [source] returned 404"
+- Dashboard: "Data unavailable" placeholder
+- HTML: warning banner listing missing data
 
 ## Output rules
 

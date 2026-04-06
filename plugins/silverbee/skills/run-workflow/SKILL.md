@@ -134,3 +134,39 @@ three-layer output per `seo-output-formatter`: Layer 1 (final dashboard),
 Layer 2 (HTML report), Layer 3 (full markdown).
 
 If `show_generative_ui` is unavailable, report progress as structured markdown after each step.
+
+---
+
+## Workflow Chains
+
+A workflow can suggest a logical follow-up. When a workflow completes, if it
+has a `next` suggestion and the user hasn't specified otherwise, offer to
+continue with the next workflow.
+
+### Chain definitions (built-in)
+
+| After completing... | Suggest next... | Why |
+|---------------------|----------------|-----|
+| technical-seo | seo-gap-analysis | Audit findings inform gap priorities |
+| keyword-research | content-optimization | Research informs content targets |
+| competitor-analysis | keyword-research | Competitor gaps inform keyword targets |
+| drop-analysis | technical-seo | Drop root cause often needs technical audit |
+
+### Chain execution
+
+When a workflow completes and has a `next` suggestion:
+1. Present the suggestion: "Based on the audit results, a gap analysis would
+   identify where competitors outperform you. Run gap analysis next?"
+2. If user agrees: start the next workflow, passing context forward
+3. If user declines: end normally
+
+### Context passing
+
+When chaining workflows, carry forward (max 5 bullet points total):
+- **Domain** — always
+- **Competitors** — if identified in the previous workflow
+- **Top 3 findings** — most actionable findings, one line each
+
+Keep carried context under 200 words. If you already fetched data for the
+same domain earlier in the conversation, reuse it instead of re-fetching.
+Never re-ask for information the previous workflow already established.

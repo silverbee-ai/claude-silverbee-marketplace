@@ -167,7 +167,7 @@ These gap types require full skill-level analysis. Run only when relevant to the
 | **Technical Performance Gap** | Core Web Vitals or rendering differences identified as potential ranking factor in position gaps. | `read_skill("tech-seo-performance")` — run with competitor benchmarking. |
 | **Internal Linking Gap** | Key pages on target receive weak internal link support compared to equivalent competitor pages. | `read_skill("tech-seo-crawl")` — run with competitor internal link analysis. |
 | **AI Visibility Gap** | Competitors appear in LLM responses or AI Overviews for target queries; target domain does not. | `read_skill("ai-visibility")` — run with competitor benchmarking. |
-| **Competitor Feature Gap** | User requests site-architecture-level comparison or full competitive audit; determines which site sections/features competitors have that the target lacks. | `read_skill("competitor-feature-gap")` — full site-section inventory and per-section keyword comparison. |
+| **Competitor Feature Gap** | User requests site-architecture-level comparison or full competitive audit; determines which site sections/features competitors have that the target lacks. | `read_skill("competitor-analysis")` — full site-section inventory and per-section keyword comparison. |
 
 Do not run all dispatched skills by default. Run them when:
 - The user explicitly requests a full audit.

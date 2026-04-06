@@ -162,6 +162,29 @@ If GSC is unavailable, skip and note the gap.
 
 ---
 
+## Step Count: 7
+
+| # | Step | Duration Estimate |
+|---|------|-------------------|
+| 1 | Domain resolution | 2s |
+| 2 | Competitor identification | 3–5s |
+| 3 | Site structure comparison | 5–8s |
+| 4 | Keyword gap analysis | 5–10s |
+| 5 | Backlink comparison | 3–5s |
+| 6 | Content feature matrix | 3–5s |
+| 7 | Output generation | 3–5s |
+
+## Step Criticality
+
+| Step | Critical | Fallback |
+|------|----------|----------|
+| Domain resolution | Yes | Cannot proceed |
+| Competitor identification | Yes | Cannot proceed |
+| Site structure comparison | No | Skip structure section, note in output |
+| Keyword gap analysis | No | Show partial data, note gaps |
+| Backlink comparison | No | Skip backlinks section, note in output |
+| Content feature matrix | No | Show available data only |
+
 ## Output Format
 
 When all data collection and analysis is complete, call `read_skill("seo-output-formatter")` and follow its instructions to format and present the full deliverable.

@@ -146,12 +146,12 @@ Summary tables follow individual findings, grouped by section.
 **Fixes:**
 - Chain → collapse to single direct 301
 - Host/protocol → enforce at server level, not CMS
-- Dead destination (404/410) → read_skill("tech-seo-404") for full diagnosis and reclaim logic
-- Redirect target selection (where to point the 301) → read_skill("tech-seo-redirect-mapping")
+- Dead destination (404/410) → identify as broken; recommend restoring content, updating redirect target to a relevant live URL, or using 410 if no suitable match exists
+- Redirect target selection (where to point the 301) → determine correct target by checking canonical URLs, GSC performance data, and topical relevance to the source URL
 - Open redirect → validate or remove destination parameter
 
 **Guardrails:**
-- No redirect to irrelevant page → use 410 if no match exists → read_skill("tech-seo-404") for 404 vs 410 decision logic
+- No redirect to irrelevant page → use 410 if no matching live page exists; use 301 only when a genuinely relevant target can be identified
 - Never use 302 for permanent moves
 
 ---

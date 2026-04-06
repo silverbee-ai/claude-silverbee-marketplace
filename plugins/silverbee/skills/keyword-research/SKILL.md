@@ -89,17 +89,7 @@ Use this pattern for all data fetching:
 
 **MANDATORY — parallel execution:** Use `run_multi_actions` to batch independent calls. Never call `run_action` in a loop one-by-one. When fetching volume/KD/CPC for multiple keyword groups, send them all in a single `run_multi_actions` call. Sequential `run_action` calls for independent queries are a performance bug. On any app-specific error, try the fallback chain (see supervisor "Step 3") before stopping. On connection/auth errors (all tools failing), follow the supervisor's "Tool call errors" section.
 
-**After each major phase**, output a status line before the next tool call:
-
-| After this phase | Output this line |
-|---|---|
-| Scope / scrape | `✓ Scope locked — [one-line summary]` |
-| Ahrefs seed pull | `📊 Got [N] keyword candidates from Ahrefs. Enriching with volume/KD/CPC...` |
-| Volume / KD / CPC enrichment | `✓ Metrics collected for [N] keywords. Pulling rankings...` |
-| Rankings (GSC or Ahrefs) | `✓ Rankings pulled. Running SERP validation for top keywords...` |
-| SERP validation | `✓ SERP data collected. Running cannibalization check...` |
-| Cannibalization check | `✓ Cannibalization check done. Building dashboard...` |
-
+**After each major step**, output a numbered status line (see Step Count table below).
 Never skip these lines. They are the only feedback the user gets during a multi-minute operation.
 
 ---
@@ -242,6 +232,28 @@ One keyword per row with these columns in this exact order:
 - *For the full cannibalization check workflow, call `read_skill("seo-cannibalization-diagnosis")`*
 
 ---
+
+## Step Count: 7
+
+| # | Step | Duration Estimate |
+|---|------|-------------------|
+| 1 | Domain resolution | 2s |
+| 2 | GSC keyword fetch | 3–5s |
+| 3 | Ahrefs volume/KD enrichment | 3–5s |
+| 4 | SERP validation | 5–8s |
+| 5 | Cannibalization check | 3–5s |
+| 6 | Intent classification | 2s |
+| 7 | Output generation | 3–5s |
+
+## Step Criticality
+
+| Step | Critical | Fallback |
+|------|----------|----------|
+| Domain resolution | Yes | Cannot proceed |
+| GSC keyword data | Yes | Cannot proceed |
+| Ahrefs volume/KD | No | Show GSC data only, note "Ahrefs data unavailable" |
+| SERP validation | No | Skip SERP column, note in output |
+| Cannibalization check | No | Skip section, note in output |
 
 ## Output Format
 

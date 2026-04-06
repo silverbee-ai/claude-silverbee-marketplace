@@ -150,7 +150,7 @@ For each documented action (content updates, technical fixes, internal linking c
 
 ## 5) Drop Diagnosis
 
-For every significant negative movement identified in section 2, run the full diagnostic by calling `read_skill("drop-diagnosis")`. That skill handles drop validation, algorithm update correlation, Archive.org diffing, affected page identification, and root-cause classification. Do not duplicate that work here.
+For every significant negative movement identified in section 2, run the full diagnostic by calling `read_skill("drop-analysis")`. That skill handles drop validation, algorithm update correlation, Archive.org diffing, affected page identification, and root-cause classification. Do not duplicate that work here.
 
 **What this skill adds on top of drop diagnosis — client-facing explanation:**
 

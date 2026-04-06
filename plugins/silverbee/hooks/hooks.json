@@ -1,6 +1,35 @@
 {
-  "description": "Silverbee hooks — crystallization nudge + skill edit feedback + auth URL resolver + auto-open output",
+  "description": "Silverbee hooks — session init, input validation, crystallization nudge, skill edit feedback, auth URL resolver, auto-open output",
   "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/session-init.py\"",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/validate-mcp-input.py\"",
+            "timeout": 3
+          },
+          {
+            "type": "command",
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/telemetry-start-timer.py\"",
+            "timeout": 3
+          }
+        ]
+      }
+    ],
     "PostToolUse": [
       {
         "matcher": "",
@@ -14,6 +43,11 @@
             "type": "command",
             "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/crystallization-nudge.py\"",
             "timeout": 5
+          },
+          {
+            "type": "command",
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/telemetry-tracker.py\"",
+            "timeout": 10
           }
         ]
       },
@@ -50,6 +84,11 @@
           {
             "type": "command",
             "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/skill-edit-feedback.py\"",
+            "timeout": 15
+          },
+          {
+            "type": "command",
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/telemetry-flush.py\"",
             "timeout": 15
           }
         ]

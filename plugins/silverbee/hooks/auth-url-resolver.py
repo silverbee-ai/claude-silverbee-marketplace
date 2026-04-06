@@ -18,14 +18,15 @@ import urllib.request
 import urllib.error
 
 
-# MCP server URL — read from .mcp.json or use default
-DEFAULT_MCP_URL = "https://silverbee-us.apigene.ai/globalagent/codex-seo-agent/mcp"
+# MCP server URL — read from .mcp.json, env var, or built-in default
+DEFAULT_MCP_URL = os.environ.get(
+    "SILVERBEE_MCP_URL",
+    "https://silverbee-us.apigene.ai/globalagent/codex-seo-agent/mcp",
+)
 
 # Strings that indicate a tool call failed (case-insensitive check)
 ERROR_INDICATORS = [
     "tool execution failed",
-    "error",
-    "failed",
     "511",
     "authentication required",
     "unauthorized",
@@ -126,8 +127,8 @@ def main():
 
     combined_text = f"{response_text} {error_msg}"
 
-    # If this looks like a successful call, exit silently
-    if not error_msg and not looks_like_error(combined_text):
+    # Exit silently if no explicit error and no specific auth error indicator
+    if not error_msg and not looks_like_error(response_text):
         sys.exit(0)
 
     # --- This is an error. Resolve the auth URL. ---
@@ -142,7 +143,10 @@ def main():
 
     # 3. Fallback: use the known redirect base
     if not auth_url:
-        auth_url = "https://silverbee-us.apigene.ai/sign-in"
+        auth_url = os.environ.get(
+            "SILVERBEE_SIGN_IN_URL",
+            "https://silverbee-us.apigene.ai/sign-in",
+        )
 
     display_error = error_msg or response_text[:200]
 

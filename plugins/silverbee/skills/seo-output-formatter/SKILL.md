@@ -30,6 +30,17 @@ Run this before writing a single line of output:
 
 ---
 
+## Partial Data Handling
+
+If any data source was skipped or failed during the workflow, mark the gap
+in every output layer. Never silently omit a section.
+
+- **Dashboard (Layer 1):** `Text` component: `"Data unavailable — [reason]"`
+- **HTML (Layer 2):** Yellow warning banner at the top listing missing data
+- **Markdown (Layer 3):** `⚠️ Incomplete Data` section after Executive Summary
+
+---
+
 ## 1. Three-Layer Output Strategy
 
 Every SEO deliverable uses all three layers, always in this order:

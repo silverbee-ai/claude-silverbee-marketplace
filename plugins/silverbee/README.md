@@ -85,13 +85,6 @@ Skills load automatically when relevant. The full set:
 | react-wow-output | Interactive JSX component templates |
 | platform-awareness | Plugin capability reference |
 
-## Agents
-
-| Agent | Role |
-|-------|------|
-| seo-supervisor | Main orchestrator — routes requests, manages skills, runs tools |
-| workflow-executor | Step-by-step workflow execution with live progress |
-
 ## Requirements
 
 - **Node.js** (v18+) — required for the MCP proxy
@@ -113,4 +106,4 @@ Skills load automatically when relevant. The full set:
 
 ## License
 
-MIT
+Proprietary — Copyright (c) 2024-2026 Silverbee AI. All rights reserved. See [LICENSE](LICENSE) for details.

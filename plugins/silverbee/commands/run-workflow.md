@@ -17,9 +17,12 @@ than 15 seconds pass without giving the user a visible update.
 
 1. Load and follow the `supervisor` skill (call `get_instructions` first).
 
-2. If no workflow name is provided in `$ARGUMENTS`: discover available workflows
+2. Load and follow the `run-workflow` skill for the complete workflow execution
+   protocol, including discovery, confirmation, and execution rules.
+
+3. If no workflow name is provided in `$ARGUMENTS`: discover available workflows
    and present them as a numbered list for the user to choose from.
 
-3. If a workflow name is provided: announce it to the user, then execute each
+4. If a workflow name is provided: announce it to the user, then execute each
    stage one at a time using `run_action` — outputting a status line after
    every single call.

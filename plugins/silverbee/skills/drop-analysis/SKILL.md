@@ -229,6 +229,27 @@ The evidence supports the conclusion or it doesn't yet.
 
 ---
 
+## Step Count: 6
+
+| # | Step | Duration Estimate |
+|---|------|-------------------|
+| 1 | Domain resolution | 2s |
+| 2 | GSC performance comparison | 5–8s |
+| 3 | Algorithm update correlation | 3–5s |
+| 4 | Archive.org snapshots | 5–10s |
+| 5 | Ahrefs ranking changes | 3–5s |
+| 6 | Output generation | 3–5s |
+
+## Step Criticality
+
+| Step | Critical | Fallback |
+|------|----------|----------|
+| Domain resolution | Yes | Cannot proceed |
+| GSC performance comparison | Yes | Cannot proceed |
+| Algorithm update correlation | No | Skip correlation, note in output |
+| Archive.org snapshots | No | Skip historical comparison, note in output |
+| Ahrefs ranking changes | No | Use GSC data only, note in output |
+
 ## Output Format
 
 When all data collection and analysis is complete, call `read_skill("seo-output-formatter")` and follow its instructions to format and present the full deliverable.

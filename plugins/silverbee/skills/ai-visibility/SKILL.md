@@ -94,7 +94,7 @@ Two distinct analysis types. These are not interchangeable — each answers a di
 
 **What it answers:** "Where does my domain appear across LLM responses?"
 
-**When using Ahrefs Brand Radar:** call `read_skill("brand-radar")` before executing any Brand Radar tool calls. That skill defines allowed data sources and execution constraints.
+**When using Ahrefs Brand Radar:** call `read_skill("ahrefs-brand-radar")` before executing any Brand Radar tool calls. That skill defines allowed data sources and execution constraints.
 
 No queries needed as input — Brand Radar takes a domain and returns:
 - Total LLM mention count.

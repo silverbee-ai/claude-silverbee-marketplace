@@ -400,6 +400,27 @@ Every run must output three sections:
 
 ---
 
+## Step Count: 6
+
+| # | Step | Duration Estimate |
+|---|------|-------------------|
+| 1 | Target keyword validation | 2–3s |
+| 2 | Current page content fetch | 3–5s |
+| 3 | GSC query retention check | 3–5s |
+| 4 | Competitor content analysis | 5–8s |
+| 5 | SERP feature analysis | 3–5s |
+| 6 | Output generation | 3–5s |
+
+## Step Criticality
+
+| Step | Critical | Fallback |
+|------|----------|----------|
+| Target keyword validation | Yes | Cannot proceed |
+| Current page content fetch | Yes | Cannot proceed |
+| GSC query retention check | No | Skip retention, note in output |
+| Competitor content analysis | No | Optimize without competitor context |
+| SERP feature analysis | No | Skip SERP features, note in output |
+
 ## Output Format
 
 When all data collection and analysis is complete, call `read_skill("seo-output-formatter")` and follow its instructions to format and present the full deliverable.

@@ -140,7 +140,7 @@ Skills are loaded automatically based on context, or explicitly via commands:
 - **Call AskUserQuestion** — collect structured user inputs via option pickers (use for simple selections; prefer show_generative_ui forms for multi-field inputs)
 - **Call run_action_ui / run_multi_actions_ui** — execute MCP actions with automatic visual UI rendering of results
 - **Call MCP tools** — live data from 13+ SEO data sources
-- **Execute multi-step workflows** — via the workflow-executor agent
+- **Execute multi-step workflows** — via the supervisor skill and run-workflow command
 - **Run tools in parallel** — independent data fetches execute simultaneously
 
 ---

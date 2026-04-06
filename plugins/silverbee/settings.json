@@ -1,7 +1,8 @@
 {
   "permissions": {
     "allow": [
-      "mcp__silverbee__*"
+      "mcp__silverbee__*",
+      "mcp__generative-ui-mcp__*"
     ]
   }
 }

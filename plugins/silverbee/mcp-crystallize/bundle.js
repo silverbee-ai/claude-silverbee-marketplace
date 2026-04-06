@@ -40303,7 +40303,8 @@ Return ONLY a JSON array:
     const start = raw.indexOf("[");
     const end = raw.lastIndexOf("]") + 1;
     if (start >= 0 && end > 0) return JSON.parse(raw.slice(start, end));
-  } catch {
+  } catch (err) {
+    console.error("[crystallizer] classifyNodes failed:", err?.message ?? err);
   }
   return rawNodes.map((n2) => ({
     id: n2.id,
@@ -40335,7 +40336,8 @@ Return ONLY a JSON array:
     const start = raw.indexOf("[");
     const end = raw.lastIndexOf("]") + 1;
     if (start >= 0 && end > 0) return JSON.parse(raw.slice(start, end));
-  } catch {
+  } catch (err) {
+    console.error("[crystallizer] extractDeliverables failed:", err?.message ?? err);
   }
   return [];
 }
@@ -40373,14 +40375,13 @@ async function crystallizeSession(toolCalls, conversationMessages) {
   }
   const userMessages = conversationMessages.filter((m2) => m2.role === "user").map((m2) => m2.content).join("\n");
   const rawNodes = buildRawNodes(toolCalls);
-  const classified = await classifyNodes(rawNodes, userMessages);
+  const lastAssistant = [...conversationMessages].reverse().find((m2) => m2.role === "assistant");
+  const [classified, deliverables] = await Promise.all([
+    classifyNodes(rawNodes, userMessages),
+    extractDeliverables(lastAssistant?.content ?? "", toolCalls)
+  ]);
   const nodes = mergeClassification(rawNodes, classified);
   const timeline = nodes.map((n2) => n2.id);
-  const lastAssistant = [...conversationMessages].reverse().find((m2) => m2.role === "assistant");
-  const deliverables = await extractDeliverables(
-    lastAssistant?.content ?? "",
-    toolCalls
-  );
   const inputParams = [];
   const seen = /* @__PURE__ */ new Set();
   for (const node of nodes) {

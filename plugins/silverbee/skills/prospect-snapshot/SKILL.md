@@ -67,7 +67,7 @@ The finding must be concrete: "[Competitor] ranks #N for '[specific keyword]' ([
 
 ### 4c) Trajectory Signal (conditional)
 
-Call `read_skill("seo-drop-diagnosis")` — public signals only: Ahrefs historical traffic trend and ranking volatility.
+Call `read_skill("drop-analysis")` — public signals only: Ahrefs historical traffic trend and ranking volatility.
 
 **Threshold:** 20%+ traffic drop over 6 months, or sustained downward trend over 3+ months. If stable or growing, skip entirely. Absence of decline is not a finding.
 

@@ -260,6 +260,31 @@ Every issue must be tied to a specific URL, resource, or rule. No generic advice
 
 ---
 
+## Step Count: 8
+
+| # | Step | Duration Estimate |
+|---|------|-------------------|
+| 1 | Domain resolution | 2s |
+| 2 | HTTP status / server check | 2–3s |
+| 3 | Robots.txt / meta robots | 2s |
+| 4 | Core Web Vitals | 5–8s |
+| 5 | Schema validation | 3–5s |
+| 6 | Redirect audit | 3–5s |
+| 7 | Indexation check | 3–5s |
+| 8 | Output generation | 3–5s |
+
+## Step Criticality
+
+| Step | Critical | Fallback |
+|------|----------|----------|
+| Domain resolution | Yes | Cannot proceed |
+| HTTP status / server check | Yes | Cannot proceed |
+| Robots.txt / meta robots | No | Note "robots data unavailable" |
+| Core Web Vitals | No | Skip CWV section, note in output |
+| Schema validation | No | Skip schema section, note in output |
+| Redirect audit | No | Skip redirects section, note in output |
+| Indexation check | No | Skip indexation section, note in output |
+
 ## Output Format
 
 When all data collection and analysis is complete, call `read_skill("seo-output-formatter")` and follow its instructions to format and present the full deliverable.
