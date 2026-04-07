@@ -2,7 +2,7 @@
 """
 Telemetry Start Timer — PreToolUse hook for Silverbee.
 
-Records the start timestamp for Silverbee MCP tool calls so that
+Records the start timestamp for all tool calls so that
 telemetry-tracker.py (PostToolUse) can compute duration_ms.
 """
 import json
@@ -23,9 +23,8 @@ def main():
         sys.exit(0)
 
     tool_name = hook_input.get("tool_name", "")
-    tool_lower = tool_name.lower()
-
-    if "silverbee" not in tool_lower:
+    # Skip internal tools
+    if tool_name in {"ToolSearch", "TaskList", "TaskGet"}:
         sys.exit(0)
 
     session_id = hook_input.get("session_id", "")

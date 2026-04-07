@@ -2,17 +2,19 @@
 """
 Telemetry Tracker — PostToolUse hook for Silverbee.
 
-Captures two event types:
-  - skill-usage:     fires when the Skill tool is invoked
-  - tool-execution:  fires when a Silverbee MCP tool completes
+Captures ALL tool and skill usage in a session:
+  - skill-usage:     fires when any skill is invoked (Silverbee or third-party)
+  - tool-execution:  fires for every tool call (Silverbee MCP, Claude builtins, other MCP)
+
+Each event is tagged with source="silverbee" or source="claude" so the
+dashboard can show full session context alongside Silverbee-specific analytics.
 
 Events are buffered in a JSONL temp file and flushed to the batch
 endpoint when the buffer reaches 20 events or 30 seconds have elapsed
 since the last flush.
 
 Opt-out:  SILVERBEE_FEEDBACK_ENABLED=false
-Endpoint: SILVERBEE_FEEDBACK_URL (no default — events accumulate but
-          are never sent if unset)
+Endpoint: SILVERBEE_FEEDBACK_URL
 """
 import json
 import os
@@ -34,13 +36,8 @@ DEFAULT_FEEDBACK_TOKEN = "4kjxV0oSog_mzaKzXy1yPvLec-lZGWYRJ953jZl1T34"
 BATCH_SIZE = 20
 FLUSH_INTERVAL_SECS = 30
 
-# ── Skip tools (metadata / UI — not worth tracking) ────────────────────────
-SKIP_KEYWORDS = [
-    "get_instructions", "list_available_apps", "list_actions",
-    "search_actions", "show_generative_ui",
-    "get_context", "list_contexts", "add_context",
-    "search_contexts",
-]
+# ── Skip tools (internal bootstrapping — too noisy) ────────────────────────
+SKIP_TOOLS = {"ToolSearch", "TaskList", "TaskGet"}
 
 # ── Known Silverbee MCP operation suffixes ─────────────────────────────────
 # In Claude Code CLI, tool names contain "silverbee" (e.g. mcp__plugin_silverbee_silverbee__run_action).
@@ -243,13 +240,20 @@ def main():
     now = datetime.now(timezone.utc).isoformat()
     user_id = resolve_user_id()
 
-    # ── Skill invocation tracking ────────────────────────────────────────
+    # ── Skip noisy internal tools ────────────────────────────────────────
+    if tool_name in SKIP_TOOLS:
+        sys.exit(0)
+
+    is_silverbee = _is_silverbee_tool(tool_name)
+
+    # ── Skill invocation tracking (ALL skills) ───────────────────────────
     if tool_name == "Skill":
         skill_name = ""
         if isinstance(tool_input, dict):
             skill_name = tool_input.get("skill", "")
         if skill_name:
             _write_current_skill(session_id, skill_name)
+            is_sb_skill = skill_name.startswith("silverbee:")
             _append_event(session_id, {
                 "type": "skill-usage",
                 "user_id": user_id,
@@ -257,52 +261,55 @@ def main():
                 "session_id": session_id,
                 "timestamp": now,
                 "duration_ms": None,
-                "metadata": {},
+                "metadata": {"source": "silverbee" if is_sb_skill else "other"},
             })
-            # Initialize flush timer on first event if needed
             if _last_flush_time(session_id) == 0.0:
                 _update_flush_time(session_id)
+        sys.exit(0)
 
-    # ── Silverbee MCP tool execution tracking ────────────────────────────
-    tool_lower = tool_name.lower()
-    if _is_silverbee_tool(tool_name):
-        if not any(kw in tool_lower for kw in SKIP_KEYWORDS):
-            # Determine status from tool_response
-            tool_response = hook_input.get("tool_response", {})
-            status = "success"
-            if isinstance(tool_response, dict):
-                if tool_response.get("is_error") or tool_response.get("isError"):
-                    status = "error"
-            elif isinstance(tool_response, str) and "error" in tool_response.lower():
-                status = "error"
+    # ── Tool execution tracking (ALL tools) ──────────────────────────────
+    tool_response = hook_input.get("tool_response", {})
+    status = "success"
+    if isinstance(tool_response, dict):
+        if tool_response.get("is_error") or tool_response.get("isError"):
+            status = "error"
+    elif isinstance(tool_response, str) and "error" in tool_response.lower():
+        status = "error"
 
-            # Read duration from start timestamp if available
-            duration_ms = None
-            start_path = _start_time_path(session_id, tool_name)
-            try:
-                with open(start_path, "r") as f:
-                    start_ts = float(f.read().strip())
-                duration_ms = int((time.time() - start_ts) * 1000)
-                os.remove(start_path)
-            except (OSError, ValueError):
-                pass
+    # Read duration from start timestamp if available
+    duration_ms = None
+    start_path = _start_time_path(session_id, tool_name)
+    try:
+        with open(start_path, "r") as f:
+            start_ts = float(f.read().strip())
+        duration_ms = int((time.time() - start_ts) * 1000)
+        os.remove(start_path)
+    except (OSError, ValueError):
+        pass
 
-            current_skill = _read_current_skill(session_id)
+    current_skill = _read_current_skill(session_id)
 
-            _append_event(session_id, {
-                "type": "tool-execution",
-                "user_id": user_id,
-                "tool_name": tool_name,
-                "skill_name": current_skill or None,
-                "session_id": session_id,
-                "timestamp": now,
-                "status": status,
-                "duration_ms": duration_ms,
-                "metadata": {},
-            })
-            # Initialize flush timer on first event if needed
-            if _last_flush_time(session_id) == 0.0:
-                _update_flush_time(session_id)
+    # Determine source tag
+    if is_silverbee:
+        source = "silverbee"
+    elif tool_name.startswith("mcp__"):
+        source = "mcp-other"
+    else:
+        source = "claude"
+
+    _append_event(session_id, {
+        "type": "tool-execution",
+        "user_id": user_id,
+        "tool_name": tool_name,
+        "skill_name": current_skill or None,
+        "session_id": session_id,
+        "timestamp": now,
+        "status": status,
+        "duration_ms": duration_ms,
+        "metadata": {"source": source},
+    })
+    if _last_flush_time(session_id) == 0.0:
+        _update_flush_time(session_id)
 
     # ── Conditional flush ────────────────────────────────────────────────
     url = os.environ.get("SILVERBEE_FEEDBACK_URL", DEFAULT_FEEDBACK_URL)
