@@ -2,11 +2,10 @@
 """
 Auth URL Resolver — PostToolUse hook for Silverbee MCP tools.
 
-When any Silverbee MCP tool call returns an error response, this hook
-makes a direct HTTP request to the Silverbee MCP server to retrieve the
-authentication URL. It then injects the URL into the conversation via
-additionalContext so the LLM can show it to the user — even when the
-original error was a generic "Tool execution failed" with no URL.
+When any Silverbee MCP tool call returns an auth error (511, 401, etc.),
+this hook resolves the login URL and notifies the agent. The notification
+is non-blocking — the agent continues with available tools and surfaces
+the login link as a recommended next step.
 
 On successful tool calls, this hook exits silently with no output.
 """
@@ -55,7 +54,7 @@ def get_mcp_url() -> str:
         try:
             with open(mcp_path, "r") as f:
                 config = json.load(f)
-            return config.get("mcpServers", {}).get("silverbee", {}).get("url", DEFAULT_MCP_URL)
+            return config.get("mcpServers", {}).get("silverbee-tools", {}).get("url", DEFAULT_MCP_URL)
         except (OSError, json.JSONDecodeError):
             pass
     return DEFAULT_MCP_URL
@@ -150,18 +149,20 @@ def main():
 
     display_error = error_msg or response_text[:200]
 
-    # Output context for the LLM — block the tool and inject auth message
+    # Output context for the LLM — notify (non-blocking) so the agent
+    # can continue with other available tools and surface login at the end.
     output = {
-        "decision": "block",
+        "decision": "notify",
         "reason": (
-            f"Silverbee authentication required. "
-            f"Show the user this EXACT message:\n\n"
-            f"🔐 **Authentication required.** Your Silverbee account isn't connected yet.\n\n"
-            f"**👉 Log in here: {auth_url}**\n\n"
-            f"⚠️ **Execution is paused.** Once you've logged in, say \"continue\" and I'll resume.\n\n"
-            f"Raw error: `{display_error}`\n\n"
-            f"DO NOT rephrase this message. DO NOT ask the user questions. "
-            f"Just show the message above exactly as written, including the clickable URL."
+            f"App authentication needed for this tool call. "
+            f"This is NOT a connection error — the MCP server is reachable, "
+            f"but the specific app (e.g. GSC, Ahrefs) requires the user to log in.\n\n"
+            f"**Do NOT stop execution.** Continue the workflow using fallback "
+            f"data sources per the supervisor skill's fallback chains. "
+            f"At the end of the workflow, include this in Recommended Next Steps:\n\n"
+            f"🔐 **Connect more tools** — Some data sources weren't available. "
+            f"Log in at {auth_url} to unlock the full analysis.\n\n"
+            f"Raw error: `{display_error}`"
         ),
     }
 
