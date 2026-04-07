@@ -42,6 +42,36 @@ SKIP_KEYWORDS = [
     "search_contexts",
 ]
 
+# ── Known Silverbee MCP operation suffixes ─────────────────────────────────
+# In Claude Code CLI, tool names contain "silverbee" (e.g. mcp__plugin_silverbee_silverbee__run_action).
+# In Cowork / claude.ai/code, tool names use UUIDs (e.g. mcp__53013eff-....__run_action).
+# We match both by also checking the operation suffix of any mcp__ tool.
+SILVERBEE_OPS = {
+    "run_action", "run_action_batch", "run_action_ui",
+    "run_multi_actions", "run_multi_actions_ui",
+    "list_available_apps", "list_actions", "search_actions",
+    "get_instructions", "list_skills", "get_skill", "get_skill_content",
+    "add_skill", "get_context", "list_contexts", "add_context", "search_contexts",
+    "show_generative_ui", "render_template",
+    "silverbee_crystallize", "silverbee_get_leads",
+    "silverbee_publish", "silverbee_register", "silverbee_update_profile",
+}
+
+
+def _is_silverbee_tool(tool_name: str) -> bool:
+    """Check if a tool belongs to Silverbee MCP (works with both CLI and Cowork naming)."""
+    lower = tool_name.lower()
+    # CLI: mcp__plugin_silverbee_silverbee__run_action
+    if "silverbee" in lower:
+        return True
+    # Cowork: mcp__<uuid>__run_action — match by operation suffix
+    if lower.startswith("mcp__"):
+        parts = lower.split("__")
+        if len(parts) >= 3:
+            op = parts[-1]
+            return op in SILVERBEE_OPS
+    return False
+
 
 def _buffer_path(session_id: str) -> str:
     return os.path.join(
@@ -235,7 +265,7 @@ def main():
 
     # ── Silverbee MCP tool execution tracking ────────────────────────────
     tool_lower = tool_name.lower()
-    if "silverbee" in tool_lower:
+    if _is_silverbee_tool(tool_name):
         if not any(kw in tool_lower for kw in SKIP_KEYWORDS):
             # Determine status from tool_response
             tool_response = hook_input.get("tool_response", {})
