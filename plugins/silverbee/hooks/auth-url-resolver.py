@@ -36,11 +36,9 @@ AUTH_INDICATORS = [
     "not authenticated",
     "status 511",
     "511 network authentication",
-    "auth",
+    "auth",  # intentionally broad to catch varied auth-related error messages
     "login required",
 ]
-
-ALL_INDICATORS = CONNECTION_INDICATORS + AUTH_INDICATORS
 
 
 def find_url_in_text(text: str) -> str | None:
