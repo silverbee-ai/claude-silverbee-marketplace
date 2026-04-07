@@ -66,7 +66,7 @@ def main():
         session_id = str(abs(hash(transcript_path)))
 
     # ── Flush remaining events ───────────────────────────────────────────
-    url = os.environ.get("SILVERBEE_FEEDBACK_URL", "")
+    url = os.environ.get("SILVERBEE_FEEDBACK_URL", _tracker.DEFAULT_FEEDBACK_URL)
     if url:
         flush_events(session_id, url)
 
