@@ -19,18 +19,34 @@ import subprocess
 
 
 def _claude_email() -> str:
-    """Try to read email from Claude's settings."""
+    """Try to read email from Claude's settings or Cowork environment."""
+    # Check environment variables that Cowork/Desktop may set
+    for env_key in ("CLAUDE_USER_EMAIL", "CLAUDE_ACCOUNT_EMAIL", "USER_EMAIL"):
+        email = os.environ.get(env_key, "")
+        if email and "@" in email:
+            return email
+
+    # Check Claude settings files
     candidates = [
         os.path.expanduser("~/.claude/settings.json"),
         os.path.expanduser("~/.claude.json"),
     ]
+    # In Cowork, settings may be in the session directory
+    session_claude = os.path.join(
+        os.environ.get("HOME", ""), ".claude", "settings.json"
+    )
+    if session_claude not in candidates:
+        candidates.insert(0, session_claude)
+
     for path in candidates:
         try:
             with open(path, encoding="utf-8") as f:
                 data = json.load(f)
-            email = data.get("primaryEmail") or data.get("email", "")
-            if email and "@" in email:
-                return email
+            # Try multiple possible field names
+            for key in ("primaryEmail", "email", "accountEmail", "userEmail"):
+                email = data.get(key, "")
+                if email and "@" in email:
+                    return email
         except (OSError, json.JSONDecodeError, TypeError):
             continue
     return ""

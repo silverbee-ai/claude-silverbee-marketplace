@@ -23,8 +23,7 @@ def main():
         sys.exit(0)
 
     tool_name = hook_input.get("tool_name", "")
-    # Skip internal tools
-    if tool_name in {"ToolSearch", "TaskList", "TaskGet"}:
+    if not tool_name:
         sys.exit(0)
 
     session_id = hook_input.get("session_id", "")
