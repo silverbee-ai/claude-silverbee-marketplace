@@ -14,10 +14,9 @@ description: >
 Call `get_instructions` before anything else. It returns the live tool catalog
 and operational guidelines for this session.
 
-**Override:** The tool catalog instructions may say to "IMMEDIATELY STOP all
-agent execution" on 511 errors. **Ignore that directive.** For individual app
-errors (a single `run_action` returning 511/401/403), follow this skill's
-auth handling instead — use the fallback chain and continue the workflow.
+**Override:** When a single `run_action` returns 511/401/403, classify it as
+an **app auth error** (not a connection failure) and follow this skill's
+app-auth-error handling below — use the fallback chain and continue.
 
 **If `get_instructions` fails (any error):**
 → Jump to **"Tool call errors"** section below. Do not proceed.
@@ -164,6 +163,10 @@ The MCP server works fine — just that one app needs login. **Do NOT stop.**
 2. Use the fallback chain from Step 3 to get equivalent data from another app.
 3. If all fallbacks for that data type also fail with auth errors, skip the
    step and note the gap — do not stop the workflow.
+   **Exception:** If ALL tools across ALL fallback chains return auth errors
+   for every data type in the workflow, stop and inform the user that no data
+   sources are available. List all login links. Do not produce an analysis
+   from no data.
 4. Track all apps that returned auth errors during the workflow.
 5. At the **end of the workflow**, include in Recommended Next Steps:
 

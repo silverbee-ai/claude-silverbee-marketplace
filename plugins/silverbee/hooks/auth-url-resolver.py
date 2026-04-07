@@ -23,15 +23,24 @@ DEFAULT_MCP_URL = os.environ.get(
     "https://silverbee-us.apigene.ai/globalagent/codex-seo-agent/mcp",
 )
 
-# Strings that indicate a tool call failed (case-insensitive check)
-ERROR_INDICATORS = [
+# Indicators split into two groups so the hook can distinguish connection
+# failures (should block) from app-level auth errors (should notify).
+CONNECTION_INDICATORS = [
+    "connection failed",
     "tool execution failed",
-    "511",
+]
+
+AUTH_INDICATORS = [
     "authentication required",
     "unauthorized",
     "not authenticated",
-    "connection failed",
+    "status 511",
+    "511 network authentication",
+    "auth",
+    "login required",
 ]
+
+ALL_INDICATORS = CONNECTION_INDICATORS + AUTH_INDICATORS
 
 
 def find_url_in_text(text: str) -> str | None:
@@ -40,10 +49,21 @@ def find_url_in_text(text: str) -> str | None:
     return match.group(0).rstrip(".,;:") if match else None
 
 
+def classify_error(tool_response: str) -> str | None:
+    """Classify a tool response as 'connection', 'auth', or None (no error)."""
+    lower = tool_response.lower()
+    for indicator in CONNECTION_INDICATORS:
+        if indicator in lower:
+            return "connection"
+    for indicator in AUTH_INDICATORS:
+        if indicator in lower:
+            return "auth"
+    return None
+
+
 def looks_like_error(tool_response: str) -> bool:
     """Check if the tool response looks like an error."""
-    lower = tool_response.lower()
-    return any(indicator in lower for indicator in ERROR_INDICATORS)
+    return classify_error(tool_response) is not None
 
 
 def get_mcp_url() -> str:
@@ -149,22 +169,39 @@ def main():
 
     display_error = error_msg or response_text[:200]
 
-    # Output context for the LLM — notify (non-blocking) so the agent
-    # can continue with other available tools and surface login at the end.
-    output = {
-        "decision": "notify",
-        "reason": (
-            f"App authentication needed for this tool call. "
-            f"This is NOT a connection error — the MCP server is reachable, "
-            f"but the specific app (e.g. GSC, Ahrefs) requires the user to log in.\n\n"
-            f"**Do NOT stop execution.** Continue the workflow using fallback "
-            f"data sources per the supervisor skill's fallback chains. "
-            f"At the end of the workflow, include this in Recommended Next Steps:\n\n"
-            f"🔐 **Connect more tools** — Some data sources weren't available. "
-            f"Log in at {auth_url} to unlock the full analysis.\n\n"
-            f"Raw error: `{display_error}`"
-        ),
-    }
+    # Classify the error to decide between blocking and non-blocking.
+    error_class = classify_error(combined_text)
+
+    if error_class == "connection":
+        # Connection-level failure — the MCP server is unreachable or the
+        # tool runner itself broke.  Block so the agent stops and shows a
+        # login / retry message.
+        output = {
+            "decision": "block",
+            "reason": (
+                f"Connection error — the tool call could not reach the server. "
+                f"STOP the workflow and ask the user to verify connectivity or "
+                f"log in at {auth_url} before retrying.\n\n"
+                f"Raw error: `{display_error}`"
+            ),
+        }
+    else:
+        # App-level auth error (or unclassified error treated as auth) —
+        # non-blocking so the agent continues with fallback data sources.
+        output = {
+            "decision": "notify",
+            "reason": (
+                f"App authentication needed for this tool call. "
+                f"This is NOT a connection error — the MCP server is reachable, "
+                f"but the specific app (e.g. GSC, Ahrefs) requires the user to log in.\n\n"
+                f"**Do NOT stop execution.** Continue the workflow using fallback "
+                f"data sources per the supervisor skill's fallback chains. "
+                f"At the end of the workflow, include this in Recommended Next Steps:\n\n"
+                f"**Connect more tools** — Some data sources weren't available. "
+                f"Log in at {auth_url} to unlock the full analysis.\n\n"
+                f"Raw error: `{display_error}`"
+            ),
+        }
 
     json.dump(output, sys.stdout)
     sys.exit(0)
