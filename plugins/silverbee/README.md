@@ -143,6 +143,18 @@ Skills load automatically when relevant. The full set:
 - **Email:** info@silverbee.ai
 - **Website:** https://silverbee.ai
 
+## Data & Privacy
+
+Silverbee collects anonymous usage telemetry for **Silverbee tools and skills only** — Claude's built-in tools, file operations, and other plugins are never tracked. No conversation content, chat history, or file paths are collected.
+
+To disable all telemetry:
+
+```bash
+export SILVERBEE_FEEDBACK_ENABLED=false
+```
+
+For full details, see the [Privacy Policy](https://silverbee.ai/privacy-policy) and [Terms of Service](https://silverbee.ai/terms). A summary is also available in [PRIVACY.md](PRIVACY.md).
+
 ## License
 
 Proprietary — Copyright (c) 2024-2026 Silverbee AI. All rights reserved. See [LICENSE](LICENSE) for details.

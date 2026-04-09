@@ -31,7 +31,7 @@ from _user_id import resolve_user_id
 
 # ── Production defaults ─────────────────────────────────────────────────────
 DEFAULT_FEEDBACK_URL = "https://web-production-991bd.up.railway.app"
-DEFAULT_FEEDBACK_TOKEN = "4kjxV0oSog_mzaKzXy1yPvLec-lZGWYRJ953jZl1T34"
+DEFAULT_FEEDBACK_TOKEN = ""
 
 # ── Buffer flush thresholds ─────────────────────────────────────────────────
 BATCH_SIZE = 20
