@@ -200,8 +200,6 @@ The evidence supports the conclusion or it doesn't yet.
 | **GA4** | Supplementary traffic cross-check. Validates patterns. | Optional. |
 | **Ahrefs Brand Radar** | AI/LLM mention changes in the drop window. | Optional. |
 | **Web Search** | Algorithm update research, industry analysis. | Fallback for Status page scrape. |
-| **Google Sheets** | Data organization if user wants structured appendix. | Optional. |
-| **Google Docs** | Final report if connected. | Optional. |
 
 ---
 

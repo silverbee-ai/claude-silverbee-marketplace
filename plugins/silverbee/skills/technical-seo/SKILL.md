@@ -228,8 +228,6 @@ Every issue must be tied to a specific URL, resource, or rule. No generic advice
 | **Ahrefs** | Site structure data, backlink data for redirect reclaims. | Fallback for GSC. |
 | **DataForSEO** | Site audit data fallback. | Fallback if GSC and Ahrefs unavailable. |
 | **Google Search** | `site:` queries for index verification. | Optional but recommended. |
-| **Google Docs** | Final report output. | Optional. |
-| **Google Sheets** | Issue tables, implementation checklists. | Optional. |
 
 ---
 
