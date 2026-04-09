@@ -138,6 +138,11 @@ Skills load automatically when relevant. The full set:
 - Verify the target domain has data in the connected tools
 - Check API quotas for external services (Ahrefs, DataForSEO)
 
+## Support
+
+- **Email:** info@silverbee.ai
+- **Website:** https://silverbee.ai
+
 ## License
 
 Proprietary — Copyright (c) 2024-2026 Silverbee AI. All rights reserved. See [LICENSE](LICENSE) for details.
