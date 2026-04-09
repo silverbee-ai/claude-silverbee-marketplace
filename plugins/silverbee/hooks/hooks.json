@@ -7,12 +7,6 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/ensure-mcp-connectors.sh\"",
-            "timeout": 15,
-            "async": true
-          },
-          {
-            "type": "command",
             "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/session-init.py\"",
             "timeout": 5
           }
