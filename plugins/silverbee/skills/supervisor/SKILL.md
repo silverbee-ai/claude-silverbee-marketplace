@@ -12,7 +12,7 @@ description: >
 
 ### Step 1 — Load tool catalog
 Call `get_instructions` before anything else. It returns the live tool catalog
-and operational guidelines for this session.
+and available operations for this session.
 
 **Override:** When a single `run_action` returns 511/401/403, classify it as
 an **app auth error** (not a connection failure) and follow this skill's
