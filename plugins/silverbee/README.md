@@ -35,6 +35,40 @@ claude --plugin-dir ./sources/claude-plugin
 
 You can also just describe what you need in plain language — the plugin's skills activate automatically based on context.
 
+## Examples
+
+### Keyword research
+
+```
+/silverbee:keyword-research best project management software for small teams
+```
+
+Runs end-to-end keyword research: fetches search volume and difficulty from Ahrefs, validates SERP results, checks for cannibalization against your existing pages, and delivers a prioritized keyword list with intent classification.
+
+### Technical SEO audit
+
+```
+/silverbee:seo-audit example.com
+```
+
+Performs a comprehensive technical audit across 7 dimensions: crawlability, indexation, Core Web Vitals, schema markup, redirects, rendering, and performance. Returns prioritized findings with severity ratings.
+
+### Content optimization
+
+```
+/silverbee:content-optimize https://example.com/blog/remote-work-tips "remote work productivity, work from home tips"
+```
+
+Analyzes the page against target keywords, checks keyword density, heading structure, internal links, and metadata. Produces specific rewrite suggestions with before/after comparisons.
+
+### Natural language (no command needed)
+
+```
+Compare my site example.com against competitor.com — show me the keyword gaps and content opportunities
+```
+
+Silverbee skills activate automatically based on your request. No slash command required.
+
 ## Connected Tools
 
 When the Silverbee MCP server is running, Claude has access to:

@@ -9,7 +9,7 @@
       "name": "silverbee",
       "source": "./plugins/silverbee",
       "description": "AI-powered SEO assistant with live data from Google Search Console, Ahrefs, DataForSEO, and 10+ sources.",
-      "version": "1.0.68"
+      "version": "1.0.69"
     }
   ]
 }
