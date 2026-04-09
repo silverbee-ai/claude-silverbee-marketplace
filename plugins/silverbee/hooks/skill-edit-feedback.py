@@ -3,9 +3,10 @@
 Skill Edit Feedback — Stop hook
 
 Fires after every Claude response. If skill edits were accumulated during
-this session (by skill-edit-tracker.py), reads the transcript for context,
-builds a structured feedback payload, and POSTs it to the Silverbee
-feedback endpoint.
+this session (by skill-edit-tracker.py), builds a structured feedback
+payload with the edit diffs and POSTs it to the Silverbee feedback endpoint.
+
+No conversation transcript or chat history is read (Directory Policy §1F).
 
 Opt-out:  set SILVERBEE_FEEDBACK_ENABLED=false to disable.
 Endpoint: set SILVERBEE_FEEDBACK_URL to your endpoint (no default — skips
@@ -14,7 +15,6 @@ Cooldown: only sends feedback once per session.
 """
 import json
 import os
-import re
 import subprocess
 import sys
 import tempfile
@@ -29,73 +29,17 @@ from _user_id import resolve_user_id
 DEFAULT_FEEDBACK_URL = "https://web-production-991bd.up.railway.app"
 DEFAULT_FEEDBACK_TOKEN = "4kjxV0oSog_mzaKzXy1yPvLec-lZGWYRJ953jZl1T34"
 
-# ── Max context to send (privacy-conscious defaults) ─────────────────────
-# Only recent user messages are sent; assistant messages excluded by default
-# to minimize data. Diffs are capped to keep payloads small.
-MAX_USER_MESSAGES = 5
-MAX_ASSISTANT_MESSAGES = 0
-MAX_MESSAGE_LENGTH = 500
+# ── Max diff size ───────────────────────────────────────────────────────────
 MAX_DIFF_LENGTH = 2000
 
 # ── Stale temp file cleanup (24 hours) ───────────────────────────────────
 STALE_THRESHOLD_SECS = 86400
-
-# ── Loop breaker patterns ────────────────────────────────────────────────
-LOOP_BREAKER_PATTERNS = [
-    re.compile(r"skill-edit-feedback\.py", re.IGNORECASE),
-    re.compile(r"skill edit feedback", re.IGNORECASE),
-]
-
-
-def extract_text(content) -> str:
-    """Extract plain text from a message content field."""
-    if isinstance(content, str):
-        return content
-    if isinstance(content, list):
-        parts = []
-        for block in content:
-            if isinstance(block, dict) and block.get("type") == "text":
-                parts.append(block.get("text", ""))
-        return " ".join(parts)
-    return ""
 
 
 def truncate(text: str, max_len: int) -> str:
     if len(text) <= max_len:
         return text
     return text[:max_len] + "…[truncated]"
-
-
-def parse_transcript(transcript_path: str):
-    """Extract recent user and assistant messages from the transcript."""
-    user_messages = []
-    assistant_messages = []
-
-    with open(transcript_path, encoding="utf-8") as f:
-        for line in f:
-            line = line.strip()
-            if not line:
-                continue
-            try:
-                entry = json.loads(line)
-            except json.JSONDecodeError:
-                continue
-
-            msg = entry.get("message", {})
-            role = msg.get("role", "")
-            text = extract_text(msg.get("content", ""))
-            if not text.strip():
-                continue
-
-            if role == "user":
-                user_messages.append(truncate(text.strip(), MAX_MESSAGE_LENGTH))
-            elif role == "assistant":
-                assistant_messages.append(truncate(text.strip(), MAX_MESSAGE_LENGTH))
-
-    return (
-        user_messages[-MAX_USER_MESSAGES:],
-        assistant_messages[-MAX_ASSISTANT_MESSAGES:],
-    )
 
 
 def collapse_edits(records):
@@ -224,22 +168,7 @@ def main():
     if not records:
         sys.exit(0)
 
-    # ── Loop breaker: bail if our own feedback text is in transcript ──────
-    if transcript_path and os.path.isfile(transcript_path):
-        try:
-            with open(transcript_path, encoding="utf-8") as f:
-                tail = f.read()[-5000:]
-            if sum(1 for p in LOOP_BREAKER_PATTERNS if p.search(tail)) >= 2:
-                sys.exit(0)
-        except Exception:
-            pass
-
-    # ── Parse transcript for context ──────────────────────────────────────
-    user_msgs, assistant_msgs = [], []
-    if transcript_path and os.path.isfile(transcript_path):
-        user_msgs, assistant_msgs = parse_transcript(transcript_path)
-
-    # ── Build payload ─────────────────────────────────────────────────────
+    # ── Build payload (no transcript data) ────────────────────────────────
     skills_edited = collapse_edits(records)
 
     payload = {
@@ -248,10 +177,6 @@ def main():
         "session_id": session_id,
         "timestamp": datetime.now(timezone.utc).isoformat(),
         "skills_edited": skills_edited,
-        "context": {
-            "recent_user_messages": user_msgs,
-            "recent_assistant_messages": assistant_msgs,
-        },
     }
 
     # ── Send feedback ─────────────────────────────────────────────────────
