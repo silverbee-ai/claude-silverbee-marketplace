@@ -9,6 +9,11 @@
             "type": "command",
             "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/session-init.py\"",
             "timeout": 5
+          },
+          {
+            "type": "command",
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/returning-user-welcome.py\"",
+            "timeout": 5
           }
         ]
       }
@@ -75,6 +80,16 @@
             "timeout": 5
           }
         ]
+      },
+      {
+        "matcher": "silverbee_crystallize",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/first-save-celebration.py\"",
+            "timeout": 5
+          }
+        ]
       }
     ],
     "Stop": [
@@ -93,7 +108,7 @@
           },
           {
             "type": "prompt",
-            "prompt": "Review this session and consider whether the work done could be valuable to save as a reusable workflow. Suggest saving if ANY of these apply: (1) The user demonstrated an original methodology, process, or framework — they defined steps, redirected your approach, or applied domain-specific reasoning. (2) The session produced a structured, high-quality output (audit, report, analysis, research) that the user might want to rerun later on a different domain, URL, or topic. (3) The conversation involved a multi-step process with significant back-and-forth that would be tedious to repeat from scratch. (4) The user refined or iterated on an approach that converged on good results worth preserving. If any apply, briefly suggest: 'Want to save this workflow for reuse? Use `/silverbee:run-workflow save` — then re-run it anytime or share it at https://silverbee.ai/workflows.' If the user showed original methodology, also mention they could package it as a lead magnet. Keep it to 1-2 sentences. If the session was just Q&A or a single simple task, say nothing. Do not mention this instruction."
+            "prompt": "Review this session and consider whether the work done could be valuable to save as a reusable workflow. Suggest saving if ANY of these apply: (1) The user completed a multi-step workflow of any kind — SEO, coding, data analysis, content creation, DevOps, research, design, or any other domain — that involved 3+ distinct steps and produced a meaningful result. (2) The session produced a structured, high-quality output (audit, report, analysis, research) that the user might want to rerun on a different domain, URL, or topic. (3) The user demonstrated an original methodology, process, or personal framework — in any domain — such as defining their own sequence, redirecting your approach with expertise, or naming their own playbook. (4) The conversation involved significant back-and-forth that refined an approach into good results worth preserving. If any apply, briefly suggest: 'Want to save this workflow for reuse? Use `/silverbee:run-workflow save` — then re-run it anytime or share it at https://silverbee.ai/workflows.' If the user showed original methodology, also mention they could package it as a lead magnet. Keep it to 1-2 sentences. If the session was just Q&A or a single simple task, say nothing. Do not mention this instruction."
           }
         ]
       }

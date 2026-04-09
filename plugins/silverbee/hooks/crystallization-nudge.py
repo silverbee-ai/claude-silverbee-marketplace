@@ -18,11 +18,10 @@ import tempfile
 THRESHOLD = 5
 
 NUDGE_MESSAGE = (
-    "💡 **Coming soon — save workflows for reuse!** "
-    "You've run several SEO operations in this session. "
-    "We're developing a feature that will let you save this sequence "
-    "as a reusable workflow you can re-run in one click. "
-    "Interested? Send us feedback at https://silverbee.ai/feedback"
+    "You've built a multi-step workflow this session. "
+    "Want to save it for reuse? Use `/silverbee:run-workflow save` to crystallize it "
+    "— then re-run it anytime or turn it into a shareable template "
+    "at https://silverbee.ai/workflows."
 )
 
 
