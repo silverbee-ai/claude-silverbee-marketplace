@@ -257,7 +257,7 @@ One keyword per row with these columns in this exact order:
 
 ## Dashboard Template
 
-Use `render_template("keyword-research", data)` via the silverbee-ui MCP.
+Use `render_template("keyword-research", data)` via the silverbee-mcp MCP.
 
 | Field | Type | Description |
 |---|---|---|

@@ -249,7 +249,7 @@ Explain briefly why the selected URL should own the keyword
 
 ## Dashboard Template
 
-Use `render_template("competitor-analysis", data)` via the silverbee-ui MCP.
+Use `render_template("competitor-analysis", data)` via the silverbee-mcp MCP.
 
 This template is repurposed for cannibalization diagnosis. Field mapping:
 

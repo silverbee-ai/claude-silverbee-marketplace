@@ -423,7 +423,7 @@ Every run must output three sections:
 
 ## Dashboard Template
 
-Use `render_template("content-optimization", data)` via the silverbee-ui MCP.
+Use `render_template("content-optimization", data)` via the silverbee-mcp MCP.
 
 | Field | Type | Description |
 |---|---|---|

@@ -49,7 +49,7 @@ def main():
     tool_name = hook_input.get("tool_name", "")
 
     # Only count Silverbee MCP tools (name format varies by environment:
-    # "mcp__silverbee-tools__run_action", "silverbee__run_action", "silverbee run_action", etc.)
+    # "mcp__silverbee-mcp__run_action", "silverbee__run_action", "silverbee run_action", etc.)
     tool_lower = tool_name.lower()
     if "silverbee" not in tool_lower:
         sys.exit(0)

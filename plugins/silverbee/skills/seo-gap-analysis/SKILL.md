@@ -211,7 +211,7 @@ All URLs must appear as full clickable URLs including https:// (no relative path
 
 ## Dashboard Template
 
-Use `render_template("competitor-analysis", data)` via the silverbee-ui MCP.
+Use `render_template("competitor-analysis", data)` via the silverbee-mcp MCP.
 
 | Field | Type | Description |
 |---|---|---|

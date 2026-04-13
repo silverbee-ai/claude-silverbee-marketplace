@@ -250,7 +250,7 @@ The evidence supports the conclusion or it doesn't yet.
 
 ## Dashboard Template
 
-Use `render_template("drop-analysis", data)` via the silverbee-ui MCP.
+Use `render_template("drop-analysis", data)` via the silverbee-mcp MCP.
 
 | Field | Type | Description |
 |---|---|---|

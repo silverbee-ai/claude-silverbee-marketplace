@@ -285,7 +285,7 @@ Every issue must be tied to a specific URL, resource, or rule. No generic advice
 
 ## Dashboard Template
 
-Use `render_template("technical-seo", data)` via the silverbee-ui MCP.
+Use `render_template("technical-seo", data)` via the silverbee-mcp MCP.
 
 | Field | Type | Description |
 |---|---|---|

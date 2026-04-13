@@ -314,7 +314,7 @@ Cross-reference findings:
 
 ## Dashboard Template
 
-Use `render_template("ai-visibility", data)` via the silverbee-ui MCP.
+Use `render_template("ai-visibility", data)` via the silverbee-mcp MCP.
 
 | Field | Type | Description |
 |---|---|---|

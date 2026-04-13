@@ -233,7 +233,7 @@ Use Ahrefs (fallback: DataForSEO) for monitoring. GSC backlink data is supplemen
 
 ## Dashboard Template
 
-Use `render_template("link-building", data)` via the silverbee-ui MCP.
+Use `render_template("link-building", data)` via the silverbee-mcp MCP.
 
 | Field | Type | Description |
 |---|---|---|

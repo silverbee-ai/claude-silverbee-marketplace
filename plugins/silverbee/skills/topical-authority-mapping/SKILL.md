@@ -206,7 +206,7 @@ Order what to build or expand by impact.
 
 ## Dashboard Template
 
-Use `render_template("topical-authority", data)` via the silverbee-ui MCP.
+Use `render_template("topical-authority", data)` via the silverbee-mcp MCP.
 
 | Field | Type | Description |
 |---|---|---|

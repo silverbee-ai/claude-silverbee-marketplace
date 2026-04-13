@@ -72,7 +72,7 @@ def get_mcp_url() -> str:
         try:
             with open(mcp_path, "r") as f:
                 config = json.load(f)
-            return config.get("mcpServers", {}).get("silverbee-tools", {}).get("url", DEFAULT_MCP_URL)
+            return config.get("mcpServers", {}).get("silverbee-mcp", {}).get("url", DEFAULT_MCP_URL)
         except (OSError, json.JSONDecodeError):
             pass
     return DEFAULT_MCP_URL

@@ -260,7 +260,7 @@ Minimum viable execution: one performance data source (GSC, Ahrefs, or DataForSE
 
 ## Dashboard Template
 
-Use `render_template("performance-report", data)` via the silverbee-ui MCP.
+Use `render_template("performance-report", data)` via the silverbee-mcp MCP.
 
 | Field | Type | Description |
 |---|---|---|

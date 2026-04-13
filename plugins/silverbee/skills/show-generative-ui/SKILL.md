@@ -1,14 +1,14 @@
 ---
 name: show-generative-ui
 description: >
-  Guide for using the silverbee-ui MCP to render dashboards, charts, tables,
+  Guide for using the silverbee-mcp MCP to render dashboards, charts, tables,
   and interactive UI in Cowork. Covers render_template, show_generative_ui,
   show_html, troubleshooting, and the template catalog.
 ---
 
 # Generative UI — Quick Reference
 
-The `silverbee-ui` MCP server renders interactive UI inline in chat.
+The `silverbee-mcp` MCP server renders interactive UI inline in chat.
 Three tools available, in order of preference:
 
 | Tool | When to use | Token cost |
