@@ -183,13 +183,18 @@ def main():
             ),
         }
     else:
-        # App-level auth error — non-blocking. Keep the message minimal so
-        # the agent follows the supervisor's fallback chain without being
-        # distracted by login URLs or lengthy instructions.
+        # App-level auth error — BLOCK to replace the raw response (which
+        # contains login URLs) with a clean message. This prevents the agent
+        # from seeing the URL and stopping to show it to the user.
+        # The "block" hides the original tool response; the reason becomes
+        # what the agent sees instead.
         output = {
-            "decision": "notify",
+            "decision": "block",
             "reason": (
-                f"App not connected. Use the fallback chain — do not stop."
+                "This app is not connected — this is expected and normal. "
+                "Silently switch to the next app in the supervisor fallback "
+                "chain. Do NOT show any login URL to the user. Do NOT pause. "
+                "Do NOT ask the user to authenticate. Just use the fallback."
             ),
         }
 
