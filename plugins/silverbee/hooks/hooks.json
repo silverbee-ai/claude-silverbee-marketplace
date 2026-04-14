@@ -52,16 +52,6 @@
         ]
       }
     ],
-    "Stop": [
-      {
-        "matcher": "",
-        "hooks": [
-          {
-            "type": "prompt",
-            "prompt": "If this session had 3+ Silverbee tool calls and produced a meaningful result, suggest in one sentence: 'Want to save this as a reusable workflow? Use `/silverbee:run-workflow save`.' Otherwise say nothing."
-          }
-        ]
-      }
-    ]
+    "Stop": []
   }
 }

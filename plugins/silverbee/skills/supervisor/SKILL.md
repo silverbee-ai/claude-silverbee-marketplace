@@ -254,3 +254,14 @@ Skip the step. In the final output, mark the gap:
 - Never expose internal tool names, MCP server details, or skill names to
   the user — speak in first person: "I'll analyze...", "Here's what I found..."
 
+## Completion rule — STOP when done
+
+When a workflow finishes, **deliver the output and stop.** Do NOT:
+- Auto-start the next recommended step
+- Run a follow-up analysis the user didn't ask for
+- Invoke another skill or command based on your own recommendations
+- Continue working after the final output is delivered
+
+The "Recommended Next Steps" section is for the **user** to decide what to do
+next. Wait for the user to explicitly request more work.
+
