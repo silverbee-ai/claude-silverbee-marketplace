@@ -139,11 +139,18 @@ one error-handling system — no exceptions.
 
 ### Step 1 — Classify the error
 
+**CRITICAL RULE — never pause for a single app auth error.** If `run_action`
+fails for one app (GSC, Ahrefs, etc.) with an auth/401/403/511 error, that
+is an **app auth error**, not a connection error — even if the error contains
+a login URL. Silently switch to the fallback chain and keep going. Only STOP
+if `get_instructions` or `list_available_apps` itself fails (meaning the
+MCP server is unreachable).
+
 | Signal | Classification | Action |
 |--------|---------------|--------|
 | `get_instructions` or `list_available_apps` fails | **Connection error** | STOP → show login URL |
 | Multiple unrelated apps fail in sequence | **Connection error** | STOP → show login URL |
-| `auth` / `401` / `403` / `511` on a single `run_action` | **App auth error** | Fallback chain → continue |
+| `auth` / `401` / `403` / `511` on a single `run_action` | **App auth error** | Fallback chain → continue (NEVER stop) |
 | `rate_limit` / `429` / `quota` | **Transient error** | Retry once after 3s |
 | `egress` / `blocked` / `network egress` | **Non-retriable block** | Skip step — do NOT retry or fallback |
 | `timeout` / `ETIMEDOUT` | **Transient error** | Retry once |
@@ -152,10 +159,34 @@ one error-handling system — no exceptions.
 | 200 OK but empty result / no data | **Skip error** | Skip step, note in output |
 | Anything else | **Unknown error** | STOP → show raw error |
 
+### App auth errors — NEVER stop, NEVER pause, ALWAYS fallback
+
+**This is the most common error type.** A single app returning auth/401/403/511
+means that app isn't connected. The MCP server works fine. **Do NOT stop.
+Do NOT show a login URL. Do NOT ask the user to authenticate. Do NOT pause.**
+
+1. Silently switch to the fallback chain from Step 3:
+   `✓ GSC not connected — using Ahrefs for ranking data.`
+2. If all fallbacks for that data type also fail, skip the step and note it:
+   `⚠️ Ranking data unavailable — GSC and Ahrefs both need connecting.`
+3. **Keep the workflow running.** Deliver results from whatever IS available.
+4. Track all apps that returned auth errors during the workflow.
+5. Only at the **very end** of the output, in a Recommended Next Steps section:
+
+> 🔐 **Connect more tools** — Some data sources ([list apps]) weren't
+> available in this analysis. Log in at https://silverbee-us.apigene.ai/sign-in
+> to connect them and unlock the full audit.
+
+**Exception — total blackout:** If ALL apps across ALL fallback chains for
+ALL data types return auth errors (meaning zero data is available), then
+stop and show login links. But this should almost never happen — most users
+have at least one source connected.
+
 ### Connection errors — STOP immediately
 
 These mean the MCP server itself is unreachable or the user has no Silverbee
-account. Nothing can proceed.
+account. Nothing can proceed. **Only `get_instructions` or
+`list_available_apps` failures trigger this — never a single `run_action`.**
 
 1. Do not retry. STOP.
 2. Scan the error response for a URL (`http://` or `https://`).
@@ -167,27 +198,6 @@ account. Nothing can proceed.
 > Say "continue" once you've logged in.
 
 4. Wait for user confirmation before any further tool calls.
-
-### App auth errors — fallback and continue
-
-These mean a specific data source (GSC, Ahrefs, etc.) isn't connected yet.
-The MCP server works fine — just that one app needs login. **Do NOT stop.**
-
-1. Note which app returned the auth error in the progress line:
-   `✓ GSC not connected — switching to Ahrefs.`
-2. Use the fallback chain from Step 3 to get equivalent data from another app.
-3. If all fallbacks for that data type also fail with auth errors, skip the
-   step and note the gap — do not stop the workflow.
-   **Exception:** If ALL tools across ALL fallback chains return auth errors
-   for every data type in the workflow, stop and inform the user that no data
-   sources are available. List all login links. Do not produce an analysis
-   from no data.
-4. Track all apps that returned auth errors during the workflow.
-5. At the **end of the workflow**, include in Recommended Next Steps:
-
-> 🔐 **Connect more tools** — Some data sources ([list apps]) weren't
-> available in this analysis. Log in at https://silverbee-us.apigene.ai/sign-in
-> to connect them and unlock the full audit.
 
 This ensures the user gets maximum value from whatever IS connected, and
 knows exactly what they're missing.
