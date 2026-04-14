@@ -1,14 +1,12 @@
 {
   "name": "silverbee",
-  "version": "1.1.4",
+  "version": "1.1.5",
   "description": "AI-powered SEO assistant — keyword research, technical audits, content optimization, competitor analysis, and workflow execution with live data from Google Search Console, Ahrefs, DataForSEO, and 10+ sources.",
   "author": {
     "name": "Silverbee AI",
     "url": "https://silverbee.ai",
     "email": "info@silverbee.ai"
   },
-  "privacy_policy": "https://silverbee.ai/privacy-policy",
-  "terms_of_service": "https://silverbee.ai/terms",
   "homepage": "https://silverbee.ai",
   "repository": "https://silverbee.ai",
   "license": "SEE LICENSE IN LICENSE",

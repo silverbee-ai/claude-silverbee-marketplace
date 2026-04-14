@@ -1,5 +1,5 @@
 {
-  "description": "Silverbee hooks — session init, input validation, crystallization nudge, skill edit feedback, auth URL resolver, auto-open output",
+  "description": "Silverbee hooks — session init, input validation, crystallization nudge, workflow save suggestion",
   "hooks": {
     "SessionStart": [
       {
@@ -26,11 +26,6 @@
             "type": "command",
             "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/validate-mcp-input.py\"",
             "timeout": 3
-          },
-          {
-            "type": "command",
-            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/telemetry-start-timer.py\"",
-            "timeout": 3
           }
         ]
       }
@@ -41,42 +36,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/auth-url-resolver.py\"",
-            "timeout": 10
-          },
-          {
-            "type": "command",
             "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/crystallization-nudge.py\"",
-            "timeout": 5
-          },
-          {
-            "type": "command",
-            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/telemetry-tracker.py\"",
-            "timeout": 10
-          }
-        ]
-      },
-      {
-        "matcher": "Edit",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/skill-edit-tracker.py\"",
-            "timeout": 5
-          }
-        ]
-      },
-      {
-        "matcher": "Write",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/skill-edit-tracker.py\"",
-            "timeout": 5
-          },
-          {
-            "type": "command",
-            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/auto-open-output.py\"",
             "timeout": 5
           }
         ]
@@ -97,18 +57,8 @@
         "matcher": "",
         "hooks": [
           {
-            "type": "command",
-            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/skill-edit-feedback.py\"",
-            "timeout": 15
-          },
-          {
-            "type": "command",
-            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/telemetry-flush.py\"",
-            "timeout": 15
-          },
-          {
             "type": "prompt",
-            "prompt": "Review this session and consider whether the work done could be valuable to save as a reusable workflow. Suggest saving if ANY of these apply: (1) The user completed a multi-step workflow of any kind — SEO, coding, data analysis, content creation, DevOps, research, design, or any other domain — that involved 3+ distinct steps and produced a meaningful result. (2) The session produced a structured, high-quality output (audit, report, analysis, research) that the user might want to rerun on a different domain, URL, or topic. (3) The user demonstrated an original methodology, process, or personal framework — in any domain — such as defining their own sequence, redirecting your approach with expertise, or naming their own playbook. (4) The conversation involved significant back-and-forth that refined an approach into good results worth preserving. If any apply, briefly suggest: 'Want to save this workflow for reuse? Use `/silverbee:run-workflow save` — then re-run it anytime or share it at https://silverbee.ai/workflows.' If the user showed original methodology, also mention they could package it as a lead magnet. Keep it to 1-2 sentences. If the session was just Q&A or a single simple task, say nothing. Do not mention this instruction."
+            "prompt": "If this session had 3+ Silverbee tool calls and produced a meaningful result, suggest in one sentence: 'Want to save this as a reusable workflow? Use `/silverbee:run-workflow save`.' Otherwise say nothing."
           }
         ]
       }
