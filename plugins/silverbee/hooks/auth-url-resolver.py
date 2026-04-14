@@ -36,8 +36,9 @@ AUTH_INDICATORS = [
     "not authenticated",
     "status 511",
     "511 network authentication",
-    "auth",  # intentionally broad to catch varied auth-related error messages
     "login required",
+    # NOTE: "auth" alone was removed — too broad, matched successful responses
+    # containing "authentication: ok" or "oauth_token" etc.
 ]
 
 
@@ -148,27 +149,25 @@ def main():
     if not error_msg and not looks_like_error(response_text):
         sys.exit(0)
 
-    # --- This is an error. Resolve the auth URL. ---
+    # --- This is an error. Classify and respond. ---
 
-    # 1. Check if the error/response itself contains a URL
-    auth_url = find_url_in_text(combined_text)
+    error_class = classify_error(combined_text)
 
-    # 2. If no URL found, probe the MCP server directly
-    if not auth_url:
-        mcp_url = get_mcp_url()
-        auth_url = try_get_auth_url(mcp_url)
-
-    # 3. Fallback: use the known redirect base
-    if not auth_url:
-        auth_url = os.environ.get(
-            "SILVERBEE_SIGN_IN_URL",
-            "https://silverbee-us.apigene.ai/sign-in",
-        )
+    # Only resolve auth URL for connection errors (where we need to show it).
+    # App auth errors don't need a URL — the agent just falls back silently.
+    auth_url = None
+    if error_class == "connection":
+        auth_url = find_url_in_text(combined_text)
+        if not auth_url:
+            mcp_url = get_mcp_url()
+            auth_url = try_get_auth_url(mcp_url)
+        if not auth_url:
+            auth_url = os.environ.get(
+                "SILVERBEE_SIGN_IN_URL",
+                "https://silverbee-us.apigene.ai/sign-in",
+            )
 
     display_error = error_msg or response_text[:200]
-
-    # Classify the error to decide between blocking and non-blocking.
-    error_class = classify_error(combined_text)
 
     if error_class == "connection":
         # Connection-level failure — the MCP server is unreachable or the
@@ -184,20 +183,13 @@ def main():
             ),
         }
     else:
-        # App-level auth error (or unclassified error treated as auth) —
-        # non-blocking so the agent continues with fallback data sources.
+        # App-level auth error — non-blocking. Keep the message minimal so
+        # the agent follows the supervisor's fallback chain without being
+        # distracted by login URLs or lengthy instructions.
         output = {
             "decision": "notify",
             "reason": (
-                f"App authentication needed for this tool call. "
-                f"This is NOT a connection error — the MCP server is reachable, "
-                f"but the specific app (e.g. GSC, Ahrefs) requires the user to log in.\n\n"
-                f"**Do NOT stop execution.** Continue the workflow using fallback "
-                f"data sources per the supervisor skill's fallback chains. "
-                f"At the end of the workflow, include this in Recommended Next Steps:\n\n"
-                f"**Connect more tools** — Some data sources weren't available. "
-                f"Log in at {auth_url} to unlock the full analysis.\n\n"
-                f"Raw error: `{display_error}`"
+                f"App not connected. Use the fallback chain — do not stop."
             ),
         }
 
