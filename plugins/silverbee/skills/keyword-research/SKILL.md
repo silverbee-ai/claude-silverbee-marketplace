@@ -58,36 +58,22 @@ After collecting inputs, confirm them in a short text message and **wait for the
 
 ## Tool execution
 
-### Auth gate (mandatory — run before any data fetching)
-
-Before starting data collection, verify that tool connections are live:
-
-1. Call `list_available_apps`.
-2. **If it returns ANY error** (511, "Tool execution failed", timeout, anything):
-   Stop immediately. Follow the supervisor skill's **"Tool call errors"** section.
-   In short: scan the error for a URL. If found, show it. If not, show the
-   fallback URL `https://silverbee-us.apigene.ai/sign-in` and paste the raw error.
-   **You MUST always show a clickable URL. No exceptions. Never respond to an
-   error without a link.**
-3. **If it returns an empty list:** Tell the user no data sources are connected and
-   they need to link GSC/Ahrefs/etc. at https://silverbee-us.apigene.ai/sign-in.
-4. **If it succeeds with apps listed:** Remember the list. Before every data step,
-   check if the preferred app is available. If not, use the supervisor's fallback
-   chain (GSC → Ahrefs → DataForSEO) silently — do NOT ask the user to connect
-   an app when an alternative is available. Only ask if ALL fallbacks are exhausted.
-
-Do **not** skip this step. Do **not** call `run_action` until the auth gate passes.
+Follow the supervisor skill's tool usage rules (Steps 1–3, error handling,
+result reuse). **Do not** re-call `get_instructions`, `list_available_apps`,
+or `search_actions` if they already ran in this conversation — reuse the
+cached results. Do **not** call `run_action` until the supervisor's auth
+gate (Steps 1–2) has passed.
 
 ### Data fetching
 
 **Before calling any tool**, output a plain-text kickoff message to the user:
 > "🔍 Starting keyword research for **[target]**. Pulling data from Ahrefs, GSC, and DataForSEO — this takes 3–6 minutes. I'll update you after each step."
 
-Use this pattern for all data fetching:
-1. `search_actions(query)` or `list_actions(app_name)` — find the right operation
-2. `run_action(app_name, operation_id, input)` — execute
-
-**MANDATORY — parallel execution:** Use `run_multi_actions` to batch independent calls. Never call `run_action` in a loop one-by-one. When fetching volume/KD/CPC for multiple keyword groups, send them all in a single `run_multi_actions` call. Sequential `run_action` calls for independent queries are a performance bug. On any app-specific error, try the fallback chain (see supervisor "Step 3") before stopping. On connection/auth errors (all tools failing), follow the supervisor's "Tool call errors" section.
+**MANDATORY — parallel execution:** Use `run_multi_actions` to batch
+independent calls. Never call `run_action` in a loop one-by-one. When
+fetching volume/KD/CPC for multiple keyword groups, send them all in a
+single `run_multi_actions` call. Sequential `run_action` calls for
+independent queries are a performance bug.
 
 **After each major step**, output a numbered status line (see Step Count table below).
 Never skip these lines. They are the only feedback the user gets during a multi-minute operation.

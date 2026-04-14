@@ -49,12 +49,14 @@ After collecting inputs, confirm them in a short text message and **wait for the
 
 ## Tool execution
 
-Use this pattern for all data fetching:
-1. `list_available_apps` — confirm which data sources are connected
-2. `search_actions(query)` or `list_actions(app_name)` — find the right operation
-3. `run_action(app_name, operation_id, input)` — execute
+Follow the supervisor skill's tool usage rules (Steps 1–3, error handling,
+result reuse). **Do not** re-call `get_instructions`, `list_available_apps`,
+or `search_actions` if they already ran in this conversation — reuse the
+cached results.
 
-**MANDATORY — parallel execution:** Batch all independent queries into a single `run_multi_actions` call. Never call `run_action` in a sequential loop — that is a performance bug. On any app-specific error, try the fallback chain (see supervisor "Step 3") before stopping. On connection/auth errors (all tools failing), follow the supervisor's "Tool call errors" section.
+**MANDATORY — parallel execution:** Batch all independent queries into a
+single `run_multi_actions` call. Never call `run_action` in a sequential
+loop — that is a performance bug.
 
 ---
 

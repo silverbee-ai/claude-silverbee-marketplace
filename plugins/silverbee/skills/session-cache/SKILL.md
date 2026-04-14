@@ -9,13 +9,25 @@ description: >
 
 ## Rule
 
-Before making an MCP data fetch, check if you already fetched the same
-data type for the same domain earlier in this conversation. If you did,
-reuse that result — do not call the API again.
+Before making **any** MCP call, check if you already made the same call
+earlier in this conversation. If you did, reuse that result — do not call
+the API again. This applies to **all** call types:
 
-## What counts as "same data"
+### Discovery calls (highest savings)
 
-Same **domain** + same **data type** + same **source app**.
+These calls return the same result for the entire conversation. **Never**
+call them more than once per session:
+
+- `get_instructions` — returns the tool catalog. Call once, reuse forever.
+- `list_available_apps` — returns connected apps. Call once, reuse forever.
+- `search_actions(query)` — returns operation IDs. Call once per unique
+  query, reuse for any subsequent need for the same operations.
+- `list_actions(app_name)` — returns app operations. Call once per app.
+
+### Data calls
+
+Same **domain** + same **data type** + same **source app** + same
+**parameters** = reuse.
 
 Example: If you fetched GSC keywords for example.com in step 2, and step 6
 needs GSC keywords for example.com again, reuse step 2's result.

@@ -54,10 +54,11 @@ def main():
     if "silverbee" not in tool_lower:
         sys.exit(0)
 
-    # Skip non-data tools (UI calls, context, catalog queries)
+    # Skip UI and context tools only — discovery calls (get_instructions,
+    # list_available_apps, search_actions) DO count toward the total because
+    # they consume rate-limited API calls just like data fetches.
     skip_keywords = [
-        "get_instructions", "list_available_apps", "list_actions",
-        "search_actions", "show_generative_ui",
+        "show_generative_ui", "show_html",
         "get_context", "list_contexts", "add_context",
         "search_contexts",
     ]

@@ -10,9 +10,12 @@ description: >
 
 ## Startup
 
-### Step 1 — Load tool catalog
-Call `get_instructions` before anything else. It returns the live tool catalog
-and available operations for this session.
+### Step 1 — Load tool catalog (once per session)
+Call `get_instructions` **only if you have not already called it in this
+conversation**. It returns the live tool catalog and available operations.
+
+If you already have the catalog from an earlier skill or command in this
+session, skip this call entirely.
 
 **Override:** When a single `run_action` returns 511/401/403, classify it as
 an **app auth error** (not a connection failure) and follow this skill's
@@ -21,10 +24,12 @@ app-auth-error handling below — use the fallback chain and continue.
 **If `get_instructions` fails (any error):**
 → Jump to **"Tool call errors"** section below. Do not proceed.
 
-### Step 2 — Pre-flight connectivity check (MANDATORY)
-Immediately after `get_instructions` succeeds, call `list_available_apps`.
-This verifies that the user's tool connections are live **before** any
-workflow begins.
+### Step 2 — Pre-flight connectivity check (once per session)
+Call `list_available_apps` **only if you have not already called it in this
+conversation**. This verifies that the user's tool connections are live.
+
+If you already have the apps list from an earlier call in this session,
+reuse it — do not call again.
 
 - **If `list_available_apps` fails (any error)** → Jump to **"Tool call errors"** section. Do not proceed.
 - **If `list_available_apps` succeeds but returns an empty list** → Tell the user:
@@ -33,6 +38,11 @@ workflow begins.
 - **If `list_available_apps` succeeds with apps listed** → Proceed to the workflow. Auth is confirmed.
 
 Do not attempt `run_action` or any other tool call until Step 2 passes.
+
+**Session caching rule:** Steps 1 and 2 run at most **once per conversation**.
+When a second skill loads the supervisor, it inherits the catalog and apps
+list already in context. This applies to all skills — none should re-call
+`get_instructions` or `list_available_apps` if the supervisor already ran.
 
 ### Step 2b — Load project config (if available)
 Check if `.silverbee.json` exists in the working directory. If it does, read it
@@ -59,6 +69,10 @@ After Step 2, **remember the list of connected apps** from `list_available_apps`
 Before every `run_action` call, check whether the app you're about to call is
 in that list. If not, use `search_actions` to find an alternative app that
 offers equivalent data.
+
+**`search_actions` caching:** Once you call `search_actions` for a given query,
+remember the results. Do not call `search_actions` with the same or
+substantially similar query again in the same conversation.
 
 **Standard fallback chains** (use these when the preferred app is not connected):
 
@@ -131,6 +145,7 @@ one error-handling system — no exceptions.
 | Multiple unrelated apps fail in sequence | **Connection error** | STOP → show login URL |
 | `auth` / `401` / `403` / `511` on a single `run_action` | **App auth error** | Fallback chain → continue |
 | `rate_limit` / `429` / `quota` | **Transient error** | Retry once after 3s |
+| `egress` / `blocked` / `network egress` | **Non-retriable block** | Skip step — do NOT retry or fallback |
 | `timeout` / `ETIMEDOUT` | **Transient error** | Retry once |
 | `not_found` / `404` | **Skip error** | Skip step, note in output |
 | `5xx` (single app, others working) | **Transient error** | Retry once |
@@ -179,6 +194,10 @@ knows exactly what they're missing.
 
 ### Transient errors — fallback, then retry, then skip or stop
 
+**Circuit breaker:** If 3 or more tool calls have already failed in this
+workflow (any error type, any app), skip remaining non-critical steps and
+deliver partial results. Do not continue burning calls on a degraded session.
+
 1. **Try fallback first.** Check the fallback chain in Step 3. If an
    alternative app is connected, switch to it instead of retrying:
    `✓ GSC query failed — switching to Ahrefs for ranking data.`
@@ -192,6 +211,20 @@ knows exactly what they're missing.
 
 **Latency note:** The 3s retry delay only fires on failure when no fallback
 exists. Mitigation: max 1 retry, so worst case is +3s per failed call.
+
+### Non-retriable blocks — skip immediately, no fallback
+
+These mean an external restriction (network egress policy, firewall, IP block)
+prevents access to a resource. Retrying or switching apps will not help —
+the block applies to all outbound requests for that URL/domain.
+
+1. Do **not** retry. Do **not** try the fallback chain.
+2. Skip the step and note it in output:
+   `⚠️ [step] skipped — network egress blocked for [URL/domain].`
+3. If the step is critical (per Step Criticality table), deliver partial
+   results from whatever was already collected. Do not stop the entire
+   workflow — other data sources (GSC, Ahrefs) that don't require
+   fetching the blocked URL may still work.
 
 ### Skip errors — note and continue
 
