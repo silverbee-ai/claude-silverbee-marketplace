@@ -1,5 +1,5 @@
 {
-  "description": "Silverbee hooks — session init, input validation, crystallization nudge",
+  "description": "Silverbee hooks — session init, input validation",
   "hooks": {
     "SessionStart": [
       {
@@ -8,11 +8,6 @@
           {
             "type": "command",
             "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/session-init.py\"",
-            "timeout": 5
-          },
-          {
-            "type": "command",
-            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/returning-user-welcome.py\"",
             "timeout": 5
           }
         ]
@@ -26,28 +21,6 @@
             "type": "command",
             "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/validate-mcp-input.py\"",
             "timeout": 3
-          }
-        ]
-      }
-    ],
-    "PostToolUse": [
-      {
-        "matcher": "",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/crystallization-nudge.py\"",
-            "timeout": 5
-          }
-        ]
-      },
-      {
-        "matcher": "silverbee_crystallize",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/first-save-celebration.py\"",
-            "timeout": 5
           }
         ]
       }
