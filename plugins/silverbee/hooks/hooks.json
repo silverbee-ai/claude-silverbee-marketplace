@@ -1,5 +1,5 @@
 {
-  "description": "Silverbee hooks — session init, input validation, crystallization nudge, workflow save suggestion",
+  "description": "Silverbee hooks — session init, input validation, crystallization nudge",
   "hooks": {
     "SessionStart": [
       {
