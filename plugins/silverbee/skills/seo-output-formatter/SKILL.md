@@ -528,29 +528,7 @@ If any condition is false, skip step 5 entirely — do not mention it.
 in your response text. This marker is checked by the backup hook
 (`hooks/crystallization-nudge.py`) to avoid double-nudging — keep them in sync.
 
-**Then**, construct the builder URL and call `render_template` with the
-`save-workflow` template. Follow these steps exactly:
-
-**Step 1 — Build the startup message for the URL.**
-
-Compose a concise message that captures the workflow. Include:
-- The workflow type (e.g. "keyword research", "technical SEO audit")
-- The target domain or topic
-- The key steps performed (tool names + what they did)
-- The deliverable format (dashboard, HTML report, etc.)
-
-Example:
-> Build me a keyword research workflow for SEO that: (1) pulls organic keywords from Ahrefs for a target domain, (2) validates rankings in GSC, (3) checks SERP features, (4) runs cannibalization detection, (5) outputs a dashboard with metrics, chart, and keyword table.
-
-**Step 2 — Construct the builder URL.**
-
-URL-encode the message and build the full link:
-
-```
-https://web-production-2c919.up.railway.app/?refer_source=silverbee-plugin&startup_message_with_context=<URL-encoded message>
-```
-
-**Step 3 — Call `render_template`** with the `save-workflow` template:
+**Then**, call `render_template` with the `save-workflow` template:
 
 ```json
 {
@@ -560,25 +538,15 @@ https://web-production-2c919.up.railway.app/?refer_source=silverbee-plugin&start
     "toolCount": "8",
     "domain": "example.com",
     "summary": "A complete keyword research workflow that pulls organic keywords, validates rankings, checks SERP features, and detects cannibalization.",
-    "stepsList": "1. Pull organic keywords from Ahrefs\n2. Validate current rankings in GSC\n3. Check SERP features and intent\n4. Run cannibalization detection\n5. Generate dashboard with metrics, chart, and table",
-    "builderUrl": "https://web-production-2c919.up.railway.app/?refer_source=silverbee-plugin&startup_message_with_context=Build+me+a+keyword+research+workflow..."
+    "stepsList": "1. Pull organic keywords from Ahrefs\n2. Validate current rankings in GSC\n3. Check SERP features and intent\n4. Run cannibalization detection\n5. Generate dashboard with metrics, chart, and table"
   }
 }
 ```
 
-Replace all values with the actual data from the session. The `builderUrl`
-must be the fully constructed URL from step 2.
+Replace all values with the actual data from the session.
 
 The template renders a card with a summary, metrics, and a **"Save Workflow →"**
-button that opens the builder URL. It also includes a fallback link.
-
-**Step 4 — Add a text link below the card.**
-
-After the `render_template` call, output a plain-text fallback:
-
-```
-💡 [Save this workflow](https://web-production-2c919.up.railway.app/?refer_source=silverbee-plugin&startup_message_with_context=...) — opens the Silverbee Builder with your workflow pre-loaded.
-```
+button that links to workapp.ai.
 
 **NEVER do any of these during save-workflow:**
 - ❌ Create local SKILL.md files on disk
