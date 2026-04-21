@@ -25,6 +25,17 @@
         ]
       }
     ],
-    "Stop": []
+    "Stop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/workapp-detector.py\"",
+            "timeout": 5
+          }
+        ]
+      }
+    ]
   }
 }
